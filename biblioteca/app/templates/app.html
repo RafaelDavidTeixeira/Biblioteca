@@ -1465,12 +1465,15 @@ async function runReport() {
   const g = id => document.getElementById(id)?.value || '';
   const params = new URLSearchParams();
   if (g('rf-class')) params.set('class_name', g('rf-class'));
+  if (g('rf-class-rank')) params.set('class_name', g('rf-class-rank'));
   if (g('rf-student')) params.set('student_id', g('rf-student'));
+  if (g('rf-student-rank')) params.set('student_id', g('rf-student-rank'));
   if (g('rf-from')) params.set('date_from', g('rf-from'));
   if (g('rf-to')) params.set('date_to', g('rf-to'));
   if (g('rf-type')) params.set('type', g('rf-type'));
   if (g('rf-cat')) params.set('category', g('rf-cat'));
   if (g('rf-status')) params.set('status', g('rf-status'));
+  if (g('rf-min-loans')) params.set('min_loans', g('rf-min-loans'));
 
   const urlMap = {
     'active-loans': '/api/reports/active-loans',
@@ -1478,7 +1481,9 @@ async function runReport() {
     'student-history': '/api/reports/student-history',
     'movement': '/api/reports/movement',
     'inventory': '/api/reports/inventory',
-    'most-borrowed': '/api/reports/most-borrowed'
+    'most-borrowed': '/api/reports/most-borrowed',
+    'student-ranking': '/api/reports/student-ranking',
+    'class-ranking': '/api/reports/class-ranking'
   };
 
   const url = `${urlMap[currentReportType]}?${params}`;

@@ -331,7 +331,7 @@ LICENSE_SECRET = b'biblio-lic-secret-2026-!@#XkP9m'
 
 **Método 1: Script automático (recomendado)**
 ```bash
-build_windows.bat
+.\build_windows.bat
 ```
 
 O script:
@@ -349,11 +349,7 @@ O script:
 ```bash
 pip install flask werkzeug pyinstaller
 pyinstaller Biblioteca.spec
-# ou direto:
-pyinstaller --onefile --noconsole --name "Biblioteca" --add-data "app\templates;app\templates" --add-data "app\static;app\static" --hidden-import flask --hidden-import werkzeug --hidden-import werkzeug.security --hidden-import jinja2 --hidden-import click --hidden-import itsdangerous --collect-all flask run.py
 ```
-
-**Arquivo de configuração:** `Biblioteca.spec` (já otimizado)
 
 ### 6.3 Linux (binário)
 
@@ -362,27 +358,30 @@ chmod +x build_linux.sh
 ./build_linux.sh
 ```
 
-O script:
-1. Instala dependências
-2. Executa PyInstaller
-3. Gera: `release/biblioteca` (executável)
-4. Aplica `chmod +x`
-
 ### 6.4 O que o Cliente Recebe
 
-```
-📁 Biblioteca/
-   Biblioteca.exe      ← Duplo clique para abrir
-   instance/           ← Criada automaticamente (banco de dados)
-   backups/            ← Criada automaticamente (backups locais)
-```
+O cliente recebe **apenas o arquivo `.exe`** (ou binário no Linux). Não é necessário enviar pastas adicionais, pois:
+- Templates e estáticos são embutidos no `.exe` pelo PyInstaller (`--onefile`)
+- Na primeira execução, o sistema cria automaticamente ao lado do `.exe`:
+  - `instance/` (pasta com o banco de dados `biblioteca.db`)
+  - `backups/` (pasta para backups locais)
 
-**O cliente:**
-- Não precisa instalar Python
-- Não precisa instalar nada
-- Apenas dá duplo clique no .exe
-- Browser abre automaticamente em `http://127.0.0.1:5477`
-- Ativa a licença na primeira tela
+### 6.5 Distribuição com Banco Vazio
+
+Para uma **nova instalação limpa** (sem dados de teste):
+1. Gere o executável (`build_windows.bat` ou `build_linux.sh`)
+2. Envie **apenas o `.exe`** para o cliente
+3. **Não envie** o arquivo `biblioteca.db`
+
+Quando o cliente executar o `.exe` pela primeira vez, a função `init_db()` detecta que o banco não existe e:
+- Cria a pasta `instance/`
+- Cria o arquivo `biblioteca.db` com todas as tabelas vazias
+- Insere apenas o usuário admin padrão (`admin@biblioteca.local` / `admin123`)
+- Insere as categorias padrão (Romance, Ficção, etc.)
+
+⚠️ **Importante:** Se você já tem um `biblioteca.db` na pasta de desenvolvimento, ele é usado para testes locais. O executável gerado **não carrega** esse banco junto. Ele sempre cria um novo se não encontrar um `instance/biblioteca.db` no caminho.
+
+Para **testar como se fosse uma instalação nova**, basta apagar a pasta `instance/` antes de rodar `python run.py`.
 
 ---
 

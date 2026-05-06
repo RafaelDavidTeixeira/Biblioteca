@@ -677,33 +677,29 @@ def get_classes():
 def report_student_ranking(date_from='', date_to='', class_name='', student_id='', min_loans=0):
     """Relatório de alunos com mais empréstimos em um período"""
     with get_conn() as c:
-        # Condições de data ficam no ON do JOIN para não quebrar o LEFT JOIN
-        join_cond = "s.id = l.student_id"
-        join_params = []
+        where_cond = ["s.active=1", "l.id IS NOT NULL"]
+        params = []
         if date_from:
-            join_cond += " AND l.borrowed_at >= ?"; join_params.append(date_from)
+            where_cond.append("l.borrowed_at >= ?"); params.append(date_from)
         if date_to:
-            join_cond += " AND l.borrowed_at <= ?"; join_params.append(date_to + ' 23:59:59')
-
-        where_cond = ["s.active=1"]
-        where_params = []
+            where_cond.append("l.borrowed_at <= ?"); params.append(date_to + ' 23:59:59')
         if class_name:
-            where_cond.append("s.class_name = ?"); where_params.append(class_name)
+            where_cond.append("s.class_name = ?"); params.append(class_name)
         if student_id:
-            where_cond.append("s.id = ?"); where_params.append(student_id)
+            where_cond.append("s.id = ?"); params.append(student_id)
 
         q = f"""SELECT s.id, s.name, s.enrollment, s.class_name,
                    COUNT(l.id) as total_loans,
                    MIN(l.borrowed_at) as first_loan,
                    MAX(l.borrowed_at) as last_loan
             FROM students s
-            LEFT JOIN loans l ON {join_cond}
+            JOIN loans l ON s.id = l.student_id
             WHERE {' AND '.join(where_cond)}
             GROUP BY s.id
             ORDER BY total_loans DESC
             LIMIT 200"""
 
-        rows = c.execute(q, join_params + where_params).fetchall()
+        rows = c.execute(q, params).fetchall()
         result = [dict(r) for r in rows]
         if min_loans:
             result = [r for r in result if r['total_loans'] >= int(min_loans)]
@@ -712,24 +708,24 @@ def report_student_ranking(date_from='', date_to='', class_name='', student_id='
 def report_class_ranking(date_from='', date_to=''):
     """Relatório de turmas com mais empréstimos em um período"""
     with get_conn() as c:
-        join_cond = "s.id = l.student_id"
-        join_params = []
+        where_cond = ["s.active=1", "s.class_name IS NOT NULL", "s.class_name != ''", "l.id IS NOT NULL"]
+        params = []
         if date_from:
-            join_cond += " AND l.borrowed_at >= ?"; join_params.append(date_from)
+            where_cond.append("l.borrowed_at >= ?"); params.append(date_from)
         if date_to:
-            join_cond += " AND l.borrowed_at <= ?"; join_params.append(date_to + ' 23:59:59')
+            where_cond.append("l.borrowed_at <= ?"); params.append(date_to + ' 23:59:59')
 
         q = f"""SELECT s.class_name,
                    COUNT(DISTINCT s.id) as total_students,
                    COUNT(l.id) as total_loans,
                    ROUND(CAST(COUNT(l.id) AS FLOAT) / MAX(1, COUNT(DISTINCT s.id)), 1) as avg_per_student
             FROM students s
-            LEFT JOIN loans l ON {join_cond}
-            WHERE s.active=1 AND s.class_name IS NOT NULL AND s.class_name != ''
+            JOIN loans l ON s.id = l.student_id
+            WHERE {' AND '.join(where_cond)}
             GROUP BY s.class_name
             ORDER BY total_loans DESC"""
 
-        rows = c.execute(q, join_params).fetchall()
+        rows = c.execute(q, params).fetchall()
         return [dict(r) for r in rows]
 
 def get_categories():
