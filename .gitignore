@@ -28,4 +28,7 @@ url.txt
 release/windows/*.exe
 release/linux/*.AppImage
 release/linux/*.raw
+release/linux/Biblioteca-*-x86_64
 release/ferramentas/*.exe
+release/ferramentas/rclone-*.zip
+release/ferramentas/*.msi
