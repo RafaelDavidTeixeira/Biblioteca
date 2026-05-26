@@ -1,0 +1,2101 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblioteca — {{ institution.name if institution else 'Sistema' }}</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f8f7f4;--card:#fff;--sidebar:#1a1a2e;--sidebar-hover:#25254a;--accent:#e07a5f;--accent-light:#f4a88a;--text:#2d2d2d;--muted:#6b6b6b;--sidebar-text:#c4c4d4;--border:#e8e6e1;--success:#4a9e6b;--warning:#d4a036;--danger:#c0392b;--radius:12px;--shadow:0 4px 16px rgba(0,0,0,.06);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:260px;background:var(--sidebar);min-height:100vh;padding:28px 0;display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;}
+.brand{padding:0 24px;margin-bottom:36px;display:flex;align-items:center;gap:12px;}
+.brand-icon{width:40px;height:40px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.brand h1{font-family:'Playfair Display',serif;font-size:1.25rem;color:#fff;font-weight:700;line-height:1.2;}
+.brand small{display:block;font-size:.65rem;color:#5a5a7a;margin-top:2px;font-weight:400;}
+.nav-section{padding:0 14px;margin-bottom:6px;}
+.nav-label{font-size:.68rem;text-transform:uppercase;letter-spacing:1.5px;color:#5a5a7a;padding:8px 12px;font-weight:600;}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 14px;margin:1px 0;border-radius:8px;color:var(--sidebar-text);font-size:.875rem;font-weight:400;cursor:pointer;transition:all .18s;user-select:none;}
+.nav-item:hover{background:var(--sidebar-hover);color:#fff;}
+.nav-item.active{background:var(--accent);color:#fff;font-weight:500;}
+.nav-item svg{width:17px;height:17px;flex-shrink:0;opacity:.8;}
+.nav-item.active svg{opacity:1;}
+.nav-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:.68rem;padding:2px 7px;border-radius:10px;font-weight:700;}
+.sidebar-footer{margin-top:auto;padding:16px 24px;border-top:1px solid #2a2a4a;}
+.sidebar-user{display:flex;align-items:center;gap:10px;}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:var(--accent);flex-shrink:0;}
+.sidebar-user-info{flex:1;min-width:0;}
+.sidebar-user-name{font-size:.82rem;color:#fff;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sidebar-user-role{font-size:.68rem;color:#5a5a7a;}
+.btn-logout{background:none;border:none;color:#5a5a7a;cursor:pointer;padding:4px;border-radius:6px;transition:color .2s;font-size:1rem;}
+.btn-logout:hover{color:var(--danger);}
+
+/* ── MAIN ── */
+.main{flex:1;margin-left:260px;padding:28px 36px;min-height:100vh;}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
+.page-header h2{font-family:'Playfair Display',serif;font-size:1.75rem;font-weight:800;}
+.header-actions{display:flex;align-items:center;gap:10px;}
+
+/* search */
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 14px;width:260px;position:relative;}
+.search-bar input{border:none;background:none;outline:none;font-family:'DM Sans',sans-serif;font-size:.85rem;width:100%;color:var(--text);}
+.search-bar svg{width:15px;height:15px;color:var(--muted);flex-shrink:0;}
+.search-results{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);z-index:200;display:none;}
+.search-results.open{display:block;}
+.search-group-title{font-size:.68rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);padding:10px 14px 4px;font-weight:600;}
+.search-result-item{padding:9px 14px;font-size:.83rem;cursor:pointer;transition:background .15s;}
+.search-result-item:hover{background:var(--bg);}
+.search-result-item strong{display:block;font-weight:500;}
+.search-result-item span{font-size:.75rem;color:var(--muted);}
+
+/* buttons */
+.btn{padding:9px 18px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.84rem;font-weight:500;cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:#c96a50;transform:translateY(-1px);box-shadow:0 4px 12px rgba(224,122,95,.3);}
+.btn-secondary{background:var(--card);color:var(--text);border:1px solid var(--border);}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+.btn-success{background:var(--success);color:#fff;}
+.btn-success:hover{background:#3d8a5b;}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-sm{padding:5px 11px;font-size:.76rem;}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none !important;}
+
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:28px;}
+.stat-card{background:var(--card);border-radius:var(--radius);padding:22px;border:1px solid var(--border);transition:all .25s;animation:fadeUp .4s ease backwards;}
+.stat-card:hover{box-shadow:var(--shadow);transform:translateY(-2px);}
+.stat-card:nth-child(1){animation-delay:.05s}.stat-card:nth-child(2){animation-delay:.1s}.stat-card:nth-child(3){animation-delay:.15s}.stat-card:nth-child(4){animation-delay:.2s}
+.stat-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;margin-bottom:14px;}
+.stat-icon.blue{background:#e8f4fd}.stat-icon.yellow{background:#fef3e2}.stat-icon.green{background:#e8fdf0}.stat-icon.red{background:#fde8e8}
+.stat-val{font-size:1.9rem;font-weight:700;line-height:1;margin-bottom:4px;}
+.stat-label{font-size:.78rem;color:var(--muted);}
+.stat-change{font-size:.72rem;margin-top:7px;font-weight:500;}
+.stat-change.pos{color:var(--success)}.stat-change.neg{color:var(--danger)}
+
+/* ── CARD ── */
+.card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);}
+.card-header h3{font-size:.95rem;font-weight:600;}
+.card-link{font-size:.78rem;color:var(--accent);text-decoration:none;font-weight:500;cursor:pointer;}
+.card-body{padding:18px 22px;}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:600;padding:10px 8px 10px 0;border-bottom:1px solid var(--border);}
+td{padding:13px 8px 13px 0;font-size:.86rem;border-bottom:1px solid #f4f3f0;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#fafaf8;}
+
+/* badges */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:500;}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.badge.active{background:#e8fdf0;color:var(--success)}.badge.late{background:#fde8e8;color:var(--danger)}.badge.returned{background:#f0f0f0;color:var(--muted)}.badge.available{color:var(--success)}.badge.unavailable{color:var(--danger)}
+
+/* ── PAGE SECTIONS ── */
+.page{display:none;animation:fadeUp .3s ease;}
+.page.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── MODAL ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.overlay.open{display:flex;}
+.modal{background:var(--card);border-radius:16px;padding:28px 32px;width:520px;max-width:94vw;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:modalIn .25s ease;}
+@keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal h3{font-family:'Playfair Display',serif;font-size:1.25rem;margin-bottom:22px;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;}
+
+/* ── FORM ── */
+.form-group{margin-bottom:15px;}
+.form-group label{display:block;font-size:.75rem;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 13px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;transition:border-color .18s;background:#fff;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);}
+.form-group textarea{resize:vertical;min-height:72px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+/* loan days toggle */
+.days-toggle{display:flex;gap:8px;flex-wrap:wrap;}
+.day-btn{padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.82rem;cursor:pointer;background:#fff;transition:all .15s;font-weight:500;}
+.day-btn.active{border-color:var(--accent);background:var(--accent);color:#fff;}
+
+/* scanner field */
+.scanner-field{display:flex;align-items:center;gap:10px;background:#fffbf0;border:2px dashed var(--warning);border-radius:10px;padding:13px 16px;margin-bottom:14px;}
+.scanner-field input{border:none;background:none;outline:none;font-family:'DM Sans',sans-serif;font-size:1rem;width:100%;font-weight:500;}
+.scanner-hint{font-size:.7rem;color:var(--muted);white-space:nowrap;}
+.mode-toggle{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px;}
+.mode-btn{flex:1;padding:9px;border:none;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:500;cursor:pointer;background:var(--bg);color:var(--muted);transition:all .15s;}
+.mode-btn.active{background:var(--accent);color:#fff;}
+
+/* auto datetime */
+.auto-dt{display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:11px 14px;margin-bottom:14px;}
+.auto-dt-val{font-size:.88rem;font-weight:600;}
+.auto-dt-label{font-size:.7rem;color:var(--muted);}
+
+/* loan info preview */
+.loan-preview{border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin:14px 0;font-size:.84rem;}
+.loan-preview table td{padding:3px 0;border:none;}
+.loan-preview table td:first-child{color:var(--muted);padding-right:12px;white-space:nowrap;}
+.loan-preview table td:last-child{font-weight:500;}
+
+/* ── ACTIVITY ── */
+.activity-list{display:flex;flex-direction:column;gap:14px;}
+.activity-item{display:flex;gap:12px;align-items:flex-start;}
+.act-dot{width:8px;height:8px;border-radius:50%;margin-top:6px;flex-shrink:0;}
+.act-dot.borrow{background:var(--accent)}.act-dot.return{background:var(--success)}.act-dot.register{background:var(--warning)}.act-dot.login{background:#7c83fd}
+.act-text{font-size:.84rem;line-height:1.5;}
+.act-text strong{font-weight:600;}
+.act-time{font-size:.72rem;color:var(--muted);margin-top:1px;}
+
+/* ── REPORTS ── */
+.report-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:28px;}
+.report-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:26px 22px;text-align:center;cursor:pointer;transition:all .2s;}
+.report-card:hover{border-color:var(--accent);box-shadow:var(--shadow);transform:translateY(-2px);}
+.report-card .icon{font-size:1.9rem;margin-bottom:10px;}
+.report-card h4{font-size:.9rem;font-weight:600;margin-bottom:5px;}
+.report-card p{font-size:.78rem;color:var(--muted);line-height:1.4;}
+.report-filters{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;margin-bottom:18px;}
+.filter-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-top:12px;}
+.filter-group{display:flex;flex-direction:column;gap:4px;}
+.filter-group label{font-size:.7rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+.filter-group input,.filter-group select{padding:7px 11px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.82rem;outline:none;}
+.filter-group input:focus,.filter-group select:focus{border-color:var(--accent);}
+.print-area{background:#fff;border:1px solid var(--border);border-radius:10px;padding:28px;margin-top:16px;}
+.print-header{text-align:center;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid var(--text);}
+.print-header h3{font-family:'Playfair Display',serif;font-size:1.1rem;}
+.print-header p{font-size:.78rem;color:var(--muted);margin-top:3px;}
+.print-actions{display:flex;gap:10px;margin-bottom:16px;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:28px;right:28px;padding:13px 20px;border-radius:10px;font-size:.84rem;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.15);z-index:9999;display:none;animation:toastIn .25s ease;max-width:340px;}
+.toast.show{display:flex;align-items:center;gap:8px;}
+.toast.success{background:var(--success);color:#fff;}
+.toast.error{background:var(--danger);color:#fff;}
+.toast.info{background:var(--sidebar);color:#fff;}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty .empty-icon{font-size:2.5rem;margin-bottom:12px;}
+.empty p{font-size:.88rem;}
+
+/* ── IMPORT RESULT ── */
+.import-result{margin-top:12px;font-size:.82rem;padding:10px 14px;border-radius:8px;}
+.import-result.ok{background:#e8fdf0;color:var(--success);}
+.import-result.warn{background:#fef3e2;color:var(--warning);}
+
+/* Barcode labels - only used in popup print window */
+@media print{
+  .sidebar,.page-header,.print-actions,.report-cards,.report-filters,.toast{display:none!important;}
+  .main{margin-left:0;padding:0;}
+  .print-area{border:none;padding:0;}
+  .print-header img{max-height:60px;width:auto;}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-icon" id="brand-icon">B</div>
+    <div>
+      <h1>Biblioteca</h1>
+      <small id="inst-name-sidebar">{{ institution.name if institution else '' }}</small>
+    </div>
+  </div>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-label">Principal</div>
+      <div class="nav-item {% if page=='dashboard' %}active{% endif %}" data-page="dashboard">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item {% if page=='books' %}active{% endif %}" data-page="books">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        Livros
+      </div>
+      <div class="nav-item {% if page=='students' %}active{% endif %}" data-page="students">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        Alunos
+      </div>
+      <div class="nav-item {% if page=='loans' %}active{% endif %}" data-page="loans">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+        Emprestimos
+        <span class="nav-badge" id="overdue-badge" style="display:none">0</span>
+      </div>
+      <div class="nav-item {% if page=='reports' %}active{% endif %}" data-page="reports">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Relatorios
+      </div>
+      <div class="nav-item {% if page=='barcodes' %}active{% endif %}" data-page="barcodes">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 4h18M3 4v16M3 4l18 16M21 4v16M21 4L3 20M7 4v16M11 4v16M15 4v16M17 4v16"/></svg>
+        Etiquetas
+      </div>
+      <div class="nav-item {% if page=='activity' %}active{% endif %}" data-page="activity">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Atividade
+      </div>
+      <div class="nav-item {% if page=='backup' %}active{% endif %}" data-page="backup">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+        Backup
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Configuracoes</div>
+      <div class="nav-item {% if page=='institution' %}active{% endif %}" data-page="institution">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+        Instituicao
+      </div>
+      {% if user_role == 'admin' %}
+      <div class="nav-item {% if page=='permissions' %}active{% endif %}" data-page="permissions">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        Permissoes
+      </div>
+      {% endif %}
+      <div class="nav-item {% if page=='users' %}active{% endif %}" data-page="users">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Usuarios
+      </div>
+      {% if user_role == 'admin' %}
+      <div class="nav-item {% if page=='cleanup' %}active{% endif %}" data-page="cleanup">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        Limpeza de Dados
+      </div>
+      {% endif %}
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="avatar" id="user-avatar">{{ user_name[0].upper() if user_name else 'U' }}</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name">{{ user_name }}</div>
+        <div class="sidebar-user-role">{{ 'Administrador' if user_role == 'admin' else 'Operador' }}</div>
+      </div>
+      <button class="btn-logout" title="Sair" onclick="window.location='/logout'">⏻</button>
+    </div>
+    <div id="license-info" style="margin-top:10px;padding:8px 12px;background:#1e1e3a;border-radius:8px;font-size:.72rem;color:#8a8aaa;display:none">
+      <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px">
+        <span id="license-icon">🔓</span>
+        <span style="font-weight:600;color:#aaa">Licença</span>
+      </div>
+      <div id="license-text">Carregando...</div>
+      <div id="license-expiry" style="color:#ff9966;margin-top:3px"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ── DASHBOARD ── -->
+<div class="page {% if page=='dashboard' %}active{% endif %}" id="p-dashboard">
+  <div class="page-header">
+    <h2>Dashboard</h2>
+    <div class="header-actions">
+      <div class="search-bar" style="position:relative">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" id="global-search" placeholder="Buscar aluno, livro..." autocomplete="off">
+        <div class="search-results" id="search-results"></div>
+      </div>
+    </div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-icon blue">📖</div><div class="stat-val" id="stat-books">—</div><div class="stat-label">Livros cadastrados</div><div class="stat-change pos" id="stat-items" style="display:none"></div></div>
+    <div class="stat-card"><div class="stat-icon yellow">🎓</div><div class="stat-val" id="stat-students">—</div><div class="stat-label">Alunos ativos</div></div>
+    <div class="stat-card"><div class="stat-icon green">📋</div><div class="stat-val" id="stat-loans">—</div><div class="stat-label">Emprestimos ativos</div></div>
+    <div class="stat-card"><div class="stat-icon red">⚠️</div><div class="stat-val" id="stat-overdue">—</div><div class="stat-label">Atrasos</div><div class="stat-change neg" id="stat-overdue-msg" style="display:none">Requer atencao</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3>Empréstimos Recentes</h3><span class="card-link" onclick="navigate('loans')">Ver todos →</span></div>
+    <div class="card-body"><div class="tbl-wrap"><table><thead><tr><th>Aluno</th><th>Livro</th><th>Patrimônio</th><th>Retirada</th><th>Devolução</th><th>Status</th></tr></thead><tbody id="dash-loans-body"></tbody></table></div></div>
+  </div>
+</div>
+
+<!-- ── BOOKS ── -->
+<div class="page {% if page=='books' %}active{% endif %}" id="p-books">
+  <div class="page-header">
+    <h2>Livros</h2>
+    <div class="header-actions">
+      <div class="search-bar"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg><input type="text" id="books-search" placeholder="Título, autor, patrimônio..."></div>
+      <label class="btn btn-secondary" style="cursor:pointer"><input type="file" accept=".csv" style="display:none" onchange="importCSV('books',this)">📥 Importar CSV</label>
+      <button class="btn btn-secondary btn-sm" onclick="downloadTemplate('books')">📄 Template CSV</button>
+      <button class="btn btn-primary perm-create-books" onclick="openNewBook()">+ Novo Livro</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Patrimônio</th><th>Título</th><th>Autor</th><th>Categoria</th><th>Localização</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody id="books-body"></tbody></table>
+      </div>
+      <div id="books-pagination" class="pagination" style="display:none; justify-content:center; align-items:center; gap:12px; padding:16px;">
+        <button class="btn btn-secondary btn-sm" id="books-prev" onclick="booksChangePage(-1)">← Anterior</button>
+        <span id="books-page-info" style="font-size:14px;"></span>
+        <button class="btn btn-secondary btn-sm" id="books-next" onclick="booksChangePage(1)">Próxima →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── STUDENTS ── -->
+<div class="page {% if page=='students' %}active{% endif %}" id="p-students">
+  <div class="page-header">
+    <h2>Alunos</h2>
+    <div class="header-actions">
+      <div class="search-bar"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg><input type="text" id="students-search" placeholder="Nome, matrícula, turma..."></div>
+      <label class="btn btn-secondary" style="cursor:pointer"><input type="file" accept=".csv" style="display:none" onchange="importCSV('students',this)">📥 Importar CSV</label>
+      <button class="btn btn-secondary btn-sm" onclick="downloadTemplate('students')">📄 Template CSV</button>
+      <button class="btn btn-primary perm-create-students" onclick="openNewStudent()">+ Novo Aluno</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Nome</th><th>Matrícula</th><th>Turma</th><th>Emprestimos</th><th>Situacao</th><th>Ações</th></tr></thead>
+        <tbody id="students-body"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── LOANS ── -->
+<div class="page {% if page=='loans' %}active{% endif %}" id="p-loans">
+  <div class="page-header">
+    <h2>Empréstimos</h2>
+    <div class="header-actions">
+      <select id="loans-filter" class="btn btn-secondary" style="cursor:pointer" onchange="loadLoans()">
+        <option value="active">Ativos</option>
+        <option value="overdue">Atrasados</option>
+        <option value="returned">Devolvidos</option>
+        <option value="all">Todos</option>
+      </select>
+      <button class="btn btn-primary" onclick="openModal('modal-loan')">+ Novo Empréstimo</button>
+      <button class="btn btn-success" onclick="openModal('modal-return')">↩ Registrar Devolução</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Aluno</th><th>Turma</th><th>Livro</th><th>Patrimônio</th><th>Retirada</th><th>Devolução Prevista</th><th>Status</th><th>Ação</th></tr></thead>
+        <tbody id="loans-body"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── REPORTS ── -->
+<div class="page {% if page=='reports' %}active{% endif %}" id="p-reports">
+  <div class="page-header"><h2>Relatórios</h2></div>
+  <div class="report-cards">
+    <div class="report-card" onclick="showReportFilters('active-loans')"><div class="icon">📋</div><h4>Empréstimos Ativos</h4><p>Todos os livros emprestados no momento</p></div>
+    <div class="report-card" onclick="showReportFilters('overdue')"><div class="icon">⚠️</div><h4>Livros em Atraso</h4><p>Devoluções pendentes além do prazo</p></div>
+    <div class="report-card" onclick="showReportFilters('student-history')"><div class="icon">🎓</div><h4>Histórico por Aluno</h4><p>Todos os empréstimos de um aluno</p></div>
+    <div class="report-card" onclick="showReportFilters('movement')"><div class="icon">📊</div><h4>Movimentação por Período</h4><p>Empréstimos e devoluções em intervalo de datas</p></div>
+    <div class="report-card" onclick="showReportFilters('inventory')"><div class="icon">📖</div><h4>Acervo Completo</h4><p>Todos os livros cadastrados</p></div>
+    <div class="report-card" onclick="showReportFilters('most-borrowed')"><div class="icon">🏆</div><h4>Mais Emprestados</h4><p>Ranking dos livros com mais saídas</p></div>
+    <div class="report-card" onclick="showReportFilters('student-ranking')"><div class="icon">🎓</div><h4>Ranking por Aluno</h4><p>Alunos com mais empréstimos em um período</p></div>
+  </div>
+  <div id="report-filter-panel" style="display:none">
+    <div class="report-filters">
+      <strong id="report-filter-title" style="font-size:.9rem;"></strong>
+      <div class="filter-row" id="report-filter-row"></div>
+      <div style="margin-top:14px;display:flex;gap:8px;">
+        <button class="btn btn-primary" onclick="runReport()">Gerar Relatório</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('report-filter-panel').style.display='none';document.getElementById('report-print-panel').style.display='none'">Fechar</button>
+      </div>
+    </div>
+  </div>
+  <div id="report-print-panel" style="display:none">
+    <div class="print-actions">
+      <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir</button>
+      <button class="btn btn-secondary" onclick="document.getElementById('report-print-panel').style.display='none'">Fechar</button>
+    </div>
+    <div class="print-area">
+      <div class="print-header"><h3 id="print-inst-name"></h3><p id="print-report-subtitle"></p></div>
+      <div id="print-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── BARCODES ── -->
+<div class="page {% if page=='barcodes' %}active{% endif %}" id="p-barcodes">
+  <div class="page-header"><h2>Impressao de Etiquetas</h2></div>
+  <div class="card">
+    <div class="card-body">
+      <div class="tbl-wrap" style="margin-bottom:18px">
+        <table>
+          <thead><tr><th style="width:40px"><input type="checkbox" id="bc-select-all" onclick="toggleAllBarcodes(this.checked)"></th><th>Patrimonio</th><th>Titulo</th><th>Autor</th><th>Status</th></tr></thead>
+          <tbody id="barcode-books-body"></tbody>
+        </table>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+        <div class="form-group" style="margin:0"><label>Selecionados</label><strong id="bc-selected-count">0</strong></div>
+        <div class="form-group" style="margin:0"><label>Papel Predefinido</label>
+          <select id="bc-preset">
+            <option value="a4-3col" selected>A4 - 3 colunas (63.5x38.1mm) - Padrão</option>
+            <option value="a4-2col">A4 - 2 colunas (105x74mm) - Grande</option>
+            <option value="a4-4col">A4 - 4 colunas (48x25mm) - Pequeno</option>
+            <option value="termal-1col">Termal - 1 coluna (80mm x 40mm) - Grande</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="printSelectedBarcodes()">🖨️ Imprimir Selecionados</button>
+        <button class="btn btn-secondary" onclick="loadBarcodeBooks()">🔄 Atualizar Lista</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ACTIVITY ── -->
+<div class="page {% if page=='activity' %}active{% endif %}" id="p-activity">
+  <div class="page-header"><h2>Atividade Recente</h2></div>
+  <div class="card"><div class="card-body"><div class="activity-list" id="activity-list"></div></div></div>
+</div>
+
+<!-- ── INSTITUTION ── -->
+<div class="page {% if page=='institution' %}active{% endif %}" id="p-institution">
+  <div class="page-header"><h2>Instituicao</h2></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px">
+    <div class="card" style="max-width:580px">
+      <div class="card-body">
+        <div style="text-align:center;margin-bottom:16px">
+          <div id="inst-logo-preview" style="width:80px;height:80px;border-radius:12px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 8px;overflow:hidden;background:var(--bg)"></div>
+          <label class="btn btn-secondary btn-sm" style="cursor:pointer">Alterar Logo<input type="file" accept="image/*" style="display:none" onchange="uploadLogo(this)"></label>
+        </div>
+        <div class="form-row"><div class="form-group"><label>Nome da Instituicao</label><input id="inst-name" type="text"></div><div class="form-group"><label>CNPJ</label><input id="inst-cnpj" type="text"></div></div>
+        <div class="form-group"><label>Endereco</label><input id="inst-address" type="text"></div>
+        <div class="form-row"><div class="form-group"><label>Telefone</label><input id="inst-phone" type="text"></div><div class="form-group"><label>E-mail</label><input id="inst-email" type="email"></div></div>
+        <div class="form-group"><label>Prazo padrao de emprestimo (dias)</label>
+          <div class="days-toggle">
+            <button class="day-btn" onclick="setDefaultDays(7,this)">7 dias</button>
+            <button class="day-btn" onclick="setDefaultDays(14,this)">14 dias</button>
+            <button class="day-btn" onclick="setDefaultDays(21,this)">21 dias</button>
+            <button class="day-btn" onclick="setDefaultDays(30,this)">30 dias</button>
+          </div>
+          <input id="inst-days" type="number" min="1" max="365" style="margin-top:8px;width:120px" placeholder="Ou digite...">
+        </div>
+        <button class="btn btn-primary perm-save-inst" style="margin-top:8px" onclick="saveInstitution()">Salvar Alteracoes</button>
+      </div>
+    </div>
+    <div class="card" style="max-width:400px">
+      <div class="card-header"><h3>Categorias</h3><button class="btn btn-sm btn-primary perm-manage-cats" onclick="openModal('modal-category')">+ Nova</button></div>
+      <div class="card-body"><div id="categories-list" style="max-height:360px;overflow-y:auto"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Category Modal -->
+<div class="overlay" id="modal-category">
+  <div class="modal" style="width:400px">
+    <h3>Nova Categoria</h3>
+    <div class="form-group"><label>Nome</label><input id="cat-name" type="text" placeholder="Nome da categoria"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-category')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveCategory()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PERMISSIONS ── -->
+<div class="page {% if page=='permissions' %}active{% endif %}" id="p-permissions">
+  <div class="page-header"><h2>Permissoes do Operador</h2></div>
+  <div class="card" style="max-width:700px">
+    <div class="card-body">
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:18px">Configure o que usuarios com perfil de <strong>Operador</strong> podem fazer no sistema. Administradores sempre tem acesso total.</p>
+      <div id="perms-list"></div>
+      <button class="btn btn-primary" style="margin-top:20px" onclick="savePermissions()">Salvar Permissoes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── USERS ── -->
+<div class="page {% if page=='users' %}active{% endif %}" id="p-users">
+  <div class="page-header">
+    <h2>Usuários do Sistema</h2>
+    <div class="header-actions">
+      {% if user_role == 'admin' %}<button class="btn btn-primary" onclick="openModal('modal-user')">+ Novo Usuário</button>{% endif %}
+      <button class="btn btn-secondary" onclick="openModal('modal-change-pw')">🔒 Alterar minha senha</button>
+    </div>
+  </div>
+  <div class="card" style="max-width:720px">
+    <div class="card-body"><div class="tbl-wrap"><table><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Último acesso</th><th>Status</th>{% if user_role == 'admin' %}<th>Ações</th>{% endif %}</tr></thead><tbody id="users-body"></tbody></table></div></div>
+  </div>
+</div>
+
+<!-- ── BACKUP ── -->
+<div class="page {% if page=='backup' %}active{% endif %}" id="p-backup">
+  <div class="page-header"><h2>Backup & Restauracao</h2></div>
+  <div style="display:grid;grid-template-columns:{% if user_role == 'admin' %}1fr 1fr{% else %}1fr{% endif %};gap:20px;max-width:{% if user_role == 'admin' %}680px{% else %}340px{% endif %};margin-bottom:24px">
+    <div class="card"><div class="card-body" style="text-align:center;padding:36px 20px">
+      <div style="font-size:2.2rem;margin-bottom:12px">💾</div>
+      <h3 style="margin-bottom:6px;font-size:1rem">Fazer Backup</h3>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:18px">Download completo do banco de dados</p>
+      <a href="/api/backup/download" class="btn btn-primary" style="display:inline-flex">📥 Baixar Backup</a>
+    </div></div>
+    {% if user_role == 'admin' %}<div class="card"><div class="card-body" style="text-align:center;padding:36px 20px">
+      <div style="font-size:2.2rem;margin-bottom:12px">📂</div>
+      <h3 style="margin-bottom:6px;font-size:1rem">Restaurar</h3>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:18px">Carregar backup anterior (.db)</p>
+      <label class="btn btn-secondary" style="cursor:pointer;display:inline-flex">📤 Selecionar Arquivo<input type="file" accept=".db" style="display:none" onchange="restoreBackup(this)"></label>
+    </div></div>{% endif %}
+  </div>
+  <div class="card" style="max-width:680px">
+    <div class="card-header"><h3>Backups Locais</h3><button class="btn btn-sm btn-secondary" onclick="loadBackups()">↻ Atualizar</button></div>
+    <div class="card-body"><div class="tbl-wrap"><table><thead><tr><th>Arquivo</th><th>Tamanho</th><th>Data</th></tr></thead><tbody id="backups-body"></tbody></table></div></div>
+   </div>
+ </div>
+
+<!-- ── CLEANUP ── -->
+<div class="page {% if page=='cleanup' %}active{% endif %}" id="p-cleanup">
+  <div class="page-header"><h2>Limpeza de Dados de Teste</h2></div>
+  <div class="card" style="max-width:640px;margin-bottom:24px">
+    <div class="card-body" style="padding:28px 24px">
+      <p style="font-size:.88rem;color:var(--muted);margin-bottom:20px">Selecione abaixo quais dados devem ser apagados. Um backup automático será criado antes da limpeza.</p>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:24px">
+        <label style="display:flex;align-items:center;gap:10px;font-size:.9rem;cursor:pointer;padding:10px 14px;border-radius:8px;background:var(--bg)">
+          <input type="checkbox" id="clean-books" checked style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer">
+          <span><strong>Livros</strong> — apaga todo o acervo cadastrado</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:.9rem;cursor:pointer;padding:10px 14px;border-radius:8px;background:var(--bg)">
+          <input type="checkbox" id="clean-students" checked style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer">
+          <span><strong>Alunos</strong> — apaga todos os alunos cadastrados</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:.9rem;cursor:pointer;padding:10px 14px;border-radius:8px;background:var(--bg)">
+          <input type="checkbox" id="clean-loans" checked style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer">
+          <span><strong>Empréstimos</strong> — apaga todo o histórico de empréstimos</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:.9rem;cursor:pointer;padding:10px 14px;border-radius:8px;background:var(--bg)">
+          <input type="checkbox" id="clean-logs" checked style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer">
+          <span><strong>Log de Atividades</strong> — apaga o histórico de ações no sistema</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:.9rem;cursor:pointer;padding:10px 14px;border-radius:8px;background:var(--bg)">
+          <input type="checkbox" id="clean-categories" style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer">
+          <span><strong>Categorias</strong> — apaga todas as categorias (exceto as padrão)</span>
+        </label>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <button class="btn btn-danger" onclick="runCleanup()" id="btn-cleanup">🗑️ Limpar Dados Selecionados</button>
+        <span id="cleanup-status" style="font-size:.82rem;color:var(--muted)"></span>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="max-width:640px">
+    <div class="card-header"><h3>O que NÃO será apagado</h3></div>
+    <div class="card-body" style="padding:18px 24px;font-size:.86rem;color:var(--muted)">
+      <ul style="padding-left:18px;line-height:1.8">
+        <li>Usuários (admin e operadores)</li>
+        <li>Dados da instituição (nome, CNPJ, logo)</li>
+        <li>Licença ativada</li>
+        <li>Permissões de operadores</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ── LICENSE CHECK ── -->
+<div class="page {% if page=='license_check' %}active{% endif %}" id="p-license_check">
+  <div class="page-header"><h2>Licença do Sistema</h2></div>
+  <div class="card" style="max-width:520px">
+    <div class="card-body" style="text-align:center;padding:40px 24px">
+      <div style="font-size:3rem;margin-bottom:16px">🔐</div>
+      <h3 style="margin-bottom:8px;font-size:1.1rem">Licença Inativa</h3>
+      <p style="font-size:.88rem;color:var(--muted);margin-bottom:24px">O sistema precisa de uma licença ativa para funcionar. Informe a chave de ativação abaixo.</p>
+       <div style="background:var(--bg);padding:12px 16px;border-radius:8px;margin-bottom:20px;font-family:monospace;font-size:.82rem">
+         ID da Máquina: <strong id="lic-machine-id">{{ machine_id if machine_id else 'carregando...' }}</strong>
+       </div>
+       {% if valid_until_br %}
+       <div style="font-size:.82rem;color:var(--muted);margin-bottom:12px;padding:0 4px">
+         Válida até: <strong>{{ valid_until_br }}</strong><br>
+         {% if days_left is not none %}
+           {% if days_left > 5 %}
+             <span style="color:var(--success)">✓ Ativa ({{ days_left }} dias restantes)</span>
+           {% elif days_left >= 0 %}
+             <span style="color:#ff9966">⚠️ Expira em {{ days_left }} dia(s)</span>
+           {% else %}
+             <span style="color:var(--danger)">✗ Expirada há {{ -days_left }} dia(s)</span>
+           {% endif %}
+         {% endif %}
+       </div>
+       {% endif %}
+      <div style="display:flex;gap:8px;max-width:380px;margin:0 auto 12px">
+        <input type="text" id="lic-key" class="lic-input" style="flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:monospace;font-size:.85rem;text-align:center;letter-spacing:1px;font-weight:600;outline:none;" placeholder="Cole a chave de licença aqui" maxlength="200">
+        <button class="btn btn-primary" onclick="activateLicenseFromPage()" style="white-space:nowrap">Ativar</button>
+      </div>
+      <div class="lic-msg" id="lic-msg-page" style="font-size:.8rem;margin-top:8px;font-weight:500;"></div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ── MODALS ── -->
+
+<!-- Book Modal -->
+<div class="overlay" id="modal-book">
+  <div class="modal">
+    <h3 id="book-modal-title">Cadastrar Novo Livro</h3>
+    <input type="hidden" id="book-edit-id">
+    <div class="form-row">
+      <div class="form-group"><label>Nº Patrimônio *</label><input id="book-patrimony" type="text" placeholder="PAT-00001"></div>
+      <div class="form-group"><label>ISBN</label><input id="book-isbn" type="text" placeholder="978-..."></div>
+    </div>
+    <div class="form-group"><label>Título *</label><input id="book-title" type="text" placeholder="Título do livro"></div>
+    <div class="form-group"><label>Autor</label><input id="book-author" type="text" placeholder="Nome do autor"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Categoria</label><select id="book-category"><option value="">Selecione...</option></select></div>
+      <div class="form-group"><label>Editora</label><input id="book-publisher" type="text" placeholder="Editora"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Ano</label><input id="book-year" type="number" placeholder="2024" min="1800" max="2099"></div>
+      <div class="form-group"><label>Localizao</label><input id="book-location" type="text" placeholder="Ex: Estante A, Prateleira 3"></div>
+    </div>
+    <div class="form-group"><label>Observaes</label><input id="book-notes" type="text" placeholder="..."></div>
+    <div class="form-row">
+      <div class="form-group"><label>Ano</label><input id="book-year" type="number" placeholder="2024" min="1800" max="2099"></div>
+      <div class="form-group"><label>Observacoes</label><input id="book-notes" type="text" placeholder="..."></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-book')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveBook()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Student Modal -->
+<div class="overlay" id="modal-student">
+  <div class="modal">
+    <h3 id="student-modal-title">Cadastrar Novo Aluno</h3>
+    <input type="hidden" id="student-edit-id">
+    <div class="form-group"><label>Nome Completo *</label><input id="student-name" type="text" placeholder="Nome do aluno"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Matrícula *</label><input id="student-enrollment" type="text" placeholder="2026001"></div>
+      <div class="form-group"><label>Turma</label><input id="student-class" type="text" placeholder="9º A"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Telefone</label><input id="student-phone" type="text" placeholder="(00) 00000-0000"></div>
+      <div class="form-group"><label>E-mail</label><input id="student-email" type="email" placeholder="aluno@email.com"></div>
+    </div>
+    <div class="form-group"><label>Observações</label><textarea id="student-notes" placeholder="..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-student')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveStudent()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Loan Modal -->
+<div class="overlay" id="modal-loan">
+  <div class="modal">
+    <h3>Novo Empréstimo</h3>
+    <div class="auto-dt"><span style="font-size:1.1rem">🕐</span><div><div class="auto-dt-val" id="loan-dt"></div><div class="auto-dt-label">Data e hora automáticas</div></div></div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" onclick="setLoanMode('scanner',this)">📷 Scanner</button>
+      <button class="mode-btn" onclick="setLoanMode('manual',this)">✏️ Manual</button>
+    </div>
+    <div id="loan-scanner-div">
+      <div class="scanner-field">
+        <span style="font-size:1.3rem">📷</span>
+        <input type="text" id="loan-scan-input" placeholder="Leia o código de barras do livro..." autocomplete="off">
+        <span class="scanner-hint">Aguardando...</span>
+      </div>
+      <div id="loan-scan-preview" style="display:none" class="loan-preview"></div>
+    </div>
+    <div id="loan-manual-div" style="display:none">
+      <div class="form-group"><label>Livro (Patrimônio ou Título)</label>
+        <input type="text" id="loan-book-search" placeholder="Digite para buscar..." autocomplete="off">
+        <div id="loan-book-results" style="border:1px solid var(--border);border-radius:8px;margin-top:4px;display:none;max-height:160px;overflow-y:auto;background:#fff;"></div>
+      </div>
+      <input type="hidden" id="loan-book-id">
+      <div id="loan-book-info" style="display:none" class="loan-preview"></div>
+    </div>
+    <div class="form-group" style="margin-top:4px">
+      <label>Aluno</label>
+      <input type="text" id="loan-student-search" placeholder="Digite nome ou matrícula..." autocomplete="off">
+      <div id="loan-student-results" style="border:1px solid var(--border);border-radius:8px;margin-top:4px;display:none;max-height:140px;overflow-y:auto;background:#fff;"></div>
+      <input type="hidden" id="loan-student-id">
+    </div>
+    <div class="form-group">
+      <label>Prazo de Devolução</label>
+      <div class="days-toggle" id="loan-days-toggle">
+        <button class="day-btn" onclick="setLoanDays(7,this)">7 dias</button>
+        <button class="day-btn active" onclick="setLoanDays(14,this)">14 dias</button>
+        <button class="day-btn" onclick="setLoanDays(21,this)">21 dias</button>
+        <button class="day-btn" onclick="setLoanDays(30,this)">30 dias</button>
+      </div>
+      <input type="date" id="loan-due-date" style="margin-top:8px;width:180px">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-loan')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveLoan()">Registrar Empréstimo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Return Modal -->
+<div class="overlay" id="modal-return">
+  <div class="modal">
+    <h3>Registrar Devolução</h3>
+    <div class="auto-dt"><span style="font-size:1.1rem">🕐</span><div><div class="auto-dt-val" id="return-dt"></div><div class="auto-dt-label">Data e hora da devolução</div></div></div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" onclick="setReturnMode('scanner',this)">📷 Scanner</button>
+      <button class="mode-btn" onclick="setReturnMode('manual',this)">✏️ Manual</button>
+    </div>
+    <div id="return-scanner-div">
+      <div class="scanner-field">
+        <span style="font-size:1.3rem">📷</span>
+        <input type="text" id="return-scan-input" placeholder="Leia o código do livro a devolver..." autocomplete="off">
+        <span class="scanner-hint">Aguardando...</span>
+      </div>
+    </div>
+    <div id="return-manual-div" style="display:none">
+      <div class="form-group"><label>Patrimônio do Livro</label><input type="text" id="return-patrimony" placeholder="PAT-00001"></div>
+      <button class="btn btn-secondary btn-sm" onclick="lookupReturn()">Buscar</button>
+    </div>
+    <div id="return-preview" style="display:none" class="loan-preview"></div>
+    <input type="hidden" id="return-loan-id">
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-return')">Cancelar</button>
+      <button class="btn btn-success" id="btn-confirm-return" onclick="confirmReturn()" disabled>Confirmar Devolução</button>
+    </div>
+  </div>
+</div>
+
+<!-- User Modal -->
+<div class="overlay" id="modal-user">
+  <div class="modal">
+    <h3 id="user-modal-title">Novo Usuário</h3>
+    <input type="hidden" id="user-edit-id">
+    <div class="form-group"><label>Nome Completo *</label><input id="user-name" type="text" placeholder="Nome do usuário"></div>
+    <div class="form-group"><label>E-mail *</label><input id="user-email" type="email" placeholder="usuario@email.com"></div>
+    <div class="form-group"><label>Senha *</label><input id="user-password" type="password" placeholder="Mínimo 6 caracteres"></div>
+    <div class="form-group"><label>Perfil</label><select id="user-role"><option value="operator">Operador</option><option value="admin">Administrador</option></select></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-user')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveUser()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="overlay" id="modal-change-pw">
+  <div class="modal">
+    <h3>Alterar Minha Senha</h3>
+    <div class="form-group"><label>Senha Atual *</label><input id="pw-current" type="password" placeholder="Senha atual"></div>
+    <div class="form-group"><label>Nova Senha *</label><input id="pw-new" type="password" placeholder="Nova senha (mín. 6 caracteres)"></div>
+    <div class="form-group"><label>Confirmar Nova Senha *</label><input id="pw-confirm" type="password" placeholder="Repita a nova senha"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-change-pw')">Cancelar</button>
+      <button class="btn btn-primary" onclick="changePassword()">Alterar Senha</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Error handler para debug
+window.onerror = function(msg, url, lineNo, columnNo, error) {
+  console.log('JS Error: ' + msg + ' at line ' + lineNo);
+  var errorDiv = document.getElementById('error-output');
+  if (!errorDiv) {
+    errorDiv = document.createElement('div');
+    errorDiv.id = 'error-output';
+    errorDiv.style.cssText = 'position:fixed;top:0;left:0;right:0;background:red;color:white;padding:10px;z-index:9999;font-size:12px;';
+    document.body.appendChild(errorDiv);
+  }
+  errorDiv.innerHTML = 'Erro JS: ' + msg + ' (linha ' + lineNo + ')';
+  return false;
+};
+
+// ── STATE ──
+let currentPage = '{{ page }}';
+let loanSelectedBookId = null;
+let loanSelectedStudentId = null;
+let loanSelectedDays = 14;
+let institutionLoanDays = 14;
+let currentReportType = '';
+let returnLoanId = null;
+let dtInterval;
+
+// ── NAVIGATION ──
+document.querySelectorAll('.nav-item[data-page]').forEach(function(el) {
+  el.addEventListener('click', function() { navigate(el.dataset.page); });
+});
+
+function navigate(page) {
+  document.querySelectorAll('.nav-item').forEach(function(i) { i.classList.remove('active'); });
+  document.querySelector('.nav-item[data-page="'+ (page) +'"]').classList.add('active');
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('p-' + page).classList.add('active');
+  currentPage = page;
+  history.pushState({}, '', '/' + (page === 'dashboard' ? 'dashboard' : page));
+  loadPage(page);
+}
+
+// Reload license info when navigating to license_check page
+loadLicensePage = async function() {
+  var lic = await api('/api/license/status');
+  
+  // Always load machine ID
+  var machineIdEl = document.getElementById('lic-machine-id');
+  if (machineIdEl) {
+    if (lic && lic.machine_id) {
+      machineIdEl.textContent = lic.machine_id;
+    } else {
+      // Try to get from API if not in template
+      try {
+        var r = await fetch('/api/license/status');
+        var d = await r.json();
+        if (d && d.machine_id) machineIdEl.textContent = d.machine_id;
+      } catch(e) {
+        console.error('Error loading machine ID:', e);
+      }
+    }
+  }
+  
+  if (lic && lic.active) {
+    toast('Licença ativa! Redirecionando...', 'success');
+    setTimeout(function() { navigate('dashboard'); }, 1500);
+  }
+};
+
+function loadPage(page) {
+  if (page === 'dashboard') loadDashboard();
+  else if (page === 'books') loadBooks();
+  else if (page === 'students') loadStudents();
+  else if (page === 'loans') loadLoans();
+  else if (page === 'reports') loadReportClasses();
+  else if (page === 'barcodes') loadBarcodeBooks();
+  else if (page === 'activity') loadActivity();
+  else if (page === 'institution') loadInstitution();
+  else if (page === 'permissions') loadPermissions();
+  else if (page === 'users') loadUsers();
+  else if (page === 'backup') loadBackups();
+  else if (page === 'cleanup') {} // no initial load needed
+  else if (page === 'license_check') loadLicensePage();
+}
+
+async function loadReportClasses() {
+  const [classes, cats] = await Promise.all([
+    api('/api/reports/classes'), api('/api/reports/categories')
+  ]);
+  window._reportClasses = classes || [];
+  window._reportCategories = cats || [];
+}
+
+// ── TOAST ──
+function toast(msg, type) {
+  type = type || 'info';
+  var el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'toast show ' + type;
+  clearTimeout(el._t);
+  el._t = setTimeout(function() { 
+    el.classList.remove('show'); 
+  }, 3200);
+}
+
+// ── API HELPERS ──
+async function api(url, opts) {
+  opts = opts || {};
+  var fetchOpts = {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  };
+  
+  if (opts.headers) {
+    for (var k in opts.headers) {
+      fetchOpts.headers[k] = opts.headers[k];
+    }
+  }
+  if (opts.method) fetchOpts.method = opts.method;
+  if (opts.body) fetchOpts.body = opts.body;
+   
+  try {
+    var r = await fetch(url, fetchOpts);
+    var d = await r.json();
+    if (d && d.license_inactive) {
+      navigate('license_check');
+      toast('Licenca inativa. Ative o sistema para continuar.', 'error');
+      return null;
+    }
+    return d;
+  } catch(e) {
+    toast('Erro de comunicacao com o servidor', 'error');
+    return null;
+  }
+}
+
+// ── DATETIME ──
+function updateDT() {
+  const now = new Date();
+  const s = now.toLocaleDateString() + ' — ' + now.toLocaleTimeString();
+  ['loan-dt','return-dt'].forEach(function(id) { var el=document.getElementById(id); if(el) el.textContent=s; });
+}
+
+// ── MODALS ──
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  updateDT();
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+document.querySelectorAll('.overlay').forEach(function(o) {
+  o.addEventListener('click', function(e) { if(e.target===o) o.classList.remove('open'); });
+});
+
+// ── DASHBOARD ──
+async function loadDashboard() {
+  const d = await api('/api/dashboard/stats');
+  if (!d) return;
+  
+  var statBooks = document.getElementById('stat-books');
+  if (statBooks) statBooks.textContent = (d.total_books || 0);
+  
+  if (d.total_items !== d.total_books) {
+    var itemsEl = document.getElementById('stat-items');
+    if (itemsEl) {
+      itemsEl.textContent = (d.total_items || 0) + ' itens (copias)';
+      itemsEl.style.display = '';
+    }
+  }
+  
+  var statStudents = document.getElementById('stat-students');
+  if (statStudents) statStudents.textContent = (d.total_students || 0);
+  
+  var statLoans = document.getElementById('stat-loans');
+  if (statLoans) statLoans.textContent = d.active_loans || 0;
+  
+  var statOverdue = document.getElementById('stat-overdue');
+  if (statOverdue) statOverdue.textContent = d.overdue || 0;
+  
+  var badge = document.getElementById('overdue-badge');
+  if (badge) {
+    if (d.overdue > 0) {
+      badge.textContent = d.overdue;
+      badge.style.display = '';
+      var msgEl = document.getElementById('stat-overdue-msg');
+      if (msgEl) msgEl.style.display = '';
+    } else {
+      badge.style.display = 'none';
+      var msgEl2 = document.getElementById('stat-overdue-msg');
+      if (msgEl2) msgEl2.style.display = 'none';
+    }
+  }
+  
+  var tbody = document.getElementById('dash-loans-body');
+  if (!tbody) return;
+  
+  if (!d.recent_loans || !d.recent_loans.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty"><p>Nenhum empréstimo ativo</p></td></tr>';
+  } else {
+    var html = '';
+    for (var i = 0; i < d.recent_loans.length; i++) {
+      var l = d.recent_loans[i];
+      html += '<tr>'+
+        '<td>'+ (l.student_name || '') +'</td>'+
+        '<td>'+ (l.book_title || '') +'</td>'+
+        '<td><strong>'+ (l.book_patrimony || '') +'</strong></td>'+
+        '<td>'+ (l.borrowed_at || '') +'</td>'+
+        '<td>'+ (l.due_date || '') +'</td>'+
+        '<td>'+ (statusBadge(l)) +'</td>'+
+      '</tr>';
+    }
+    tbody.innerHTML = html;
+  }
+  
+  // Check license status from backend
+  try {
+    var lic = await api('/api/license/status');
+    if (!lic) return;
+      
+    var licenseInfo = document.getElementById('license-info');
+    var licenseText = document.getElementById('license-text');
+    var licenseExpiry = document.getElementById('license-expiry');
+    var licenseIcon = document.getElementById('license-icon');
+      
+    if (licenseInfo) licenseInfo.style.display = 'block';
+      
+    if (lic.active) {
+      if (licenseIcon) licenseIcon.textContent = '✅';
+      if (licenseText) licenseText.textContent = lic.institution || 'Ativada';
+      var formattedDate = lic.valid_until_br || '';
+        
+      if (lic.days_left !== undefined && lic.days_left <= 5 && lic.days_left > 0) {
+        if (licenseExpiry) {
+          licenseExpiry.textContent = 'Expira em '+ (lic.days_left) +' dia(s)';
+          licenseExpiry.style.color = '#ff9966';
+        }
+        if (!window._licenseWarningShown) {
+          toast('⚠️ Licença expira em '+ (lic.days_left) +' dia(s)!', 'warning');
+          window._licenseWarningShown = true;
+        }
+      } else if (lic.days_left !== undefined && lic.days_left === 0) {
+        if (licenseExpiry) {
+          licenseExpiry.textContent = 'Expira hoje!';
+          licenseExpiry.style.color = '#ff9966';
+        }
+        if (!window._licenseWarningShown) {
+          toast('⚠️ Licença expira hoje!', 'warning');
+          window._licenseWarningShown = true;
+        }
+      } else {
+        if (licenseExpiry) {
+          licenseExpiry.textContent = 'Válida até: '+ (formattedDate);
+          licenseExpiry.style.color = '#4a9e6b';
+        }
+        window._licenseWarningShown = false;
+        window._licenseErrorShown = false;
+      }
+    } else if (!lic.active) {
+      if (licenseIcon) licenseIcon.textContent = '🔒';
+      if (licenseText) licenseText.textContent = lic.expired ? 'Licença expirada' : 'Não ativada';
+      if (licenseExpiry) {
+        licenseExpiry.textContent = lic.expired ? 'EXPIRADA' : 'Sistema bloqueado';
+        licenseExpiry.style.color = '#ff4444';
+      }
+      if (!window._licenseErrorShown) {
+        toast(lic.expired ? '⚠️ Licença expirada!' : '⚠️ Sistema não ativado!', 'error');
+        window._licenseErrorShown = true;
+      }
+      setTimeout(function() { navigate('license_check'); }, 2000);
+    }
+  } catch(e) {
+    console.error('License check error:', e);
+  }
+}
+
+async function loadRecentLoans() {
+  const d = await api('/api/dashboard/stats');
+  if (!d) return;
+
+  const tbody = document.getElementById('dash-loans-body');
+  if (!tbody) return;
+
+  if (!d.recent_loans || !d.recent_loans.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty"><p>Nenhum empréstimo ativo</p></td></tr>';
+  } else {
+    tbody.innerHTML = d.recent_loans.map(function(l) { return '<tr>' +
+        '<td>'+ (l.student_name || '') +'</td>'+
+        '<td>'+ (l.book_title || '') +'</td>'+
+        '<td><strong>'+ (l.book_patrimony || '') +'</strong></td>'+
+        '<td>'+ (l.borrowed_at || '') +'</td>'+
+        '<td>'+ (l.due_date || '') +'</td>'+
+        '<td>'+ (statusBadge(l)) +'</td>'+
+      '</tr>').join('');
+  }
+}
+
+// ── BOOKS ──
+function openNewBook() {
+  document.getElementById('book-modal-title').textContent = 'Cadastrar Novo Livro';
+  document.getElementById('book-edit-id').value = '';
+  ['book-patrimony','book-title','book-author','book-isbn','book-publisher','book-notes'].forEach(function(f) { document.getElementById(f).value = ''; });
+  document.getElementById('book-year').value = '';
+  document.getElementById('book-patrimony').disabled = false;
+  loadBookCategories();
+  openModal('modal-book');
+}
+
+let booksCurrentPage = 1;
+let booksSearchQuery = '';
+
+async function loadBooks(q='', page=1) {
+  if (q !== undefined) booksSearchQuery = q;
+  booksCurrentPage = page;
+  const d = await api('/api/books?q='+ (encodeURIComponent(booksSearchQuery)) +'&page='+ (page) +'');
+  if (!d) return;
+  const isAdmin = '{{ user_role }}' === 'admin';
+  const canDelete = isAdmin || opPerms.can_delete_books;
+  const tbody = document.getElementById('books-body');
+  const books = d.books || d;
+  if (!books.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty"><p>Nenhum livro encontrado</p></td></tr>'; return; }
+  tbody.innerHTML = books.map(function(b) { return '
+    <tr>
+      <td><strong>' + (b.patrimony) +'</strong></td>
+      <td>'+ (b.title) +'</td>
+      <td>'+ (b.author) +'</td>
+      <td>'+ (b.category || '—') +'</td>
+      <td>'+ (b.location || '—') +'</td>
+      <td><span class="badge '+ (b.available ? 'available' : 'unavailable') +'">'+ (b.available ? 'Disponível' : 'Emprestado') +'</span></td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick='editBook('+ (b.id) +')'>Editar</button>
+        '+ (canDelete ? '<button class="btn btn-danger btn-sm" onclick="deleteBook(${b.id) +',''+ (b.title.replace(/'/g,"\\'")) +'')">Excluir</button>' : ''}
+      </td>
+    </tr>').join('');
+  // Pagination
+  const pagDiv = document.getElementById('books-pagination');
+  if (d.pages && d.pages > 1) {
+    pagDiv.style.display = 'flex';
+    document.getElementById('books-page-info').textContent = 'Página '+ (d.page) +' de '+ (d.pages) +' ('+ (d.total) +' livros)';
+    document.getElementById('books-prev').disabled = d.page <= 1;
+    document.getElementById('books-next').disabled = d.page >= d.pages;
+  } else {
+    pagDiv.style.display = 'none';
+  }
+}
+
+function booksChangePage(delta) {
+  loadBooks(booksSearchQuery, booksCurrentPage + delta);
+}
+
+async function deleteBook(id, title) {
+  if (!confirm('Excluir "'+ (title) +'"? Esta ação não pode ser desfeita.')) return;
+  const r = await api('/api/books/'+ (id) +'', {method: 'DELETE'});
+  if ((r && r.ok)) { toast('Livro excluído!', 'success'); loadBooks(booksSearchQuery, booksCurrentPage); }
+  else toast((r && r.error) || 'Erro', 'error');
+}
+
+function printBarcode(id, patrimony, title) {
+  const win = window.open('', '_blank', 'width=400,height=300');
+  win.document.write('
+    <html><head><title>Etiqueta - '+ (patrimony) +'</title>
+    <style>body{font-family:monospace;text-align:center;padding:20px}img{max-width:100%}p{margin:4px 0;font-size:12px}</style></head>
+    <body>
+    <img src="/api/books/'+ (id) +'/barcode" onload="window.print()" onerror="document.body.innerHTML='Erro ao carregar código de barras'">
+    <p><strong>'+ (title) +'</strong></p>
+    <p>'+ (patrimony) +'</p>
+    </body></html>
+  ');
+}
+
+  document.getElementById('books-search').addEventListener('input', debounce(function(e) { booksCurrentPage = 1; loadBooks(e.target.value, 1); }, 300));
+
+async function saveBook() {
+  const id = document.getElementById('book-edit-id').value;
+  const data = {
+    patrimony: document.getElementById('book-patrimony').value.trim().toUpperCase(),
+    title: document.getElementById('book-title').value.trim(),
+    author: document.getElementById('book-author').value.trim(),
+    isbn: document.getElementById('book-isbn').value.trim(),
+    category: document.getElementById('book-category').value,
+    publisher: document.getElementById('book-publisher').value.trim(),
+    year: document.getElementById('book-year').value || null,
+    location: document.getElementById('book-location').value.trim(),
+    notes: document.getElementById('book-notes').value.trim()
+  };
+  if (!data.patrimony || !data.title) { toast('Patrimônio e título são obrigatórios', 'error'); return; }
+  const url = id ? '/api/books/'+ (id) +'' : '/api/books';
+  const method = id ? 'PUT' : 'POST';
+  const r = await api(url, {method: method, body: JSON.stringify(data)});
+  if ((r && r.ok)) {
+    document.getElementById('book-edit-id').value = '';
+    closeModal('modal-book');
+    toast(id ? 'Livro atualizado!' : 'Livro cadastrado!', 'success');
+    loadBooks(booksSearchQuery, booksCurrentPage);
+  } else {
+    toast((r && r.error) || 'Erro ao salvar', 'error');
+  }
+}
+
+async function editBook(id) {
+  const b = await api('/api/books/' + id);
+  if (!b) {
+    toast('Erro ao carregar dados do livro', 'error');
+    return;
+  }
+  document.getElementById('book-modal-title').textContent = 'Editar Livro';
+  document.getElementById('book-edit-id').value = b.id || id;
+  document.getElementById('book-patrimony').value = b.patrimony || '';
+  document.getElementById('book-patrimony').disabled = false; // Permite editar
+  document.getElementById('book-title').value = b.title || '';
+  document.getElementById('book-author').value = b.author || '';
+  document.getElementById('book-isbn').value = b.isbn || '';
+  document.getElementById('book-publisher').value = b.publisher || '';
+  document.getElementById('book-year').value = b.year || '';
+  document.getElementById('book-location').value = b.location || '';
+  document.getElementById('book-notes').value = b.notes || '';
+  loadBookCategories(function() {
+    const catSel = document.getElementById('book-category');
+    if (catSel && b.category) catSel.value = b.category;
+  });
+  openModal('modal-book');
+}
+
+async function loadBookCategories(cb) {
+  const cats = await api('/api/categories');
+  const sel = document.getElementById('book-category');
+  if (!cats) return;
+  sel.innerHTML = '<option value="">Selecione...</option>' + cats.map(function(c) { return '<option value="' + (c.name) +'">'+ (c.name) +'</option>').join('');
+  if (cb) cb();
+}
+
+document.getElementById('modal-book').addEventListener('click', function(e) {
+  if (e.target === document.getElementById('modal-book')) return;
+});
+
+// Reset student modal on open
+const origOpenModal = window.openModal;
+window.openModal = function(id) {
+  // Student modal is handled by openNewStudent() and editStudent()
+  if (id === 'modal-loan') {
+    loanSelectedBookId = null; loanSelectedStudentId = null;
+    document.getElementById('loan-scan-input').value = '';
+    document.getElementById('loan-book-search').value = '';
+    document.getElementById('loan-student-search').value = '';
+    document.getElementById('loan-book-id').value = '';
+    document.getElementById('loan-student-id').value = '';
+    document.getElementById('loan-scan-preview').style.display = 'none';
+    document.getElementById('loan-book-info').style.display = 'none';
+    document.getElementById('loan-student-results').style.display = 'none';
+    document.getElementById('loan-book-results').style.display = 'none';
+    setLoanDaysDefault();
+  }
+  if (id === 'modal-return') {
+    returnLoanId = null;
+    document.getElementById('return-scan-input').value = '';
+    document.getElementById('return-patrimony') && (document.getElementById('return-patrimony').value = '');
+    document.getElementById('return-preview').style.display = 'none';
+    document.getElementById('return-loan-id').value = '';
+    document.getElementById('btn-confirm-return').disabled = true;
+  }
+  if (id === 'modal-user') {
+    document.getElementById('user-modal-title').textContent = 'Novo Usuário';
+    document.getElementById('user-edit-id').value = '';
+    ['user-name','user-email','user-password'].forEach(function(f) { document.getElementById(f).value = ''; });
+    document.getElementById('user-role').value = 'operator';
+    document.getElementById('user-email').disabled = false;
+  }
+  document.getElementById(id).classList.add('open');
+  updateDT();
+};
+
+// ── STUDENTS ──
+async function loadStudents(q='') {
+    var d = await api('/api/students?q=' + encodeURIComponent(q));
+    var students = d.students || d;
+    var res = document.getElementById('loan-student-results');
+    if (!(students && students.length)) { res.style.display='none'; return; }
+    res.innerHTML = students.map(function(s) { return '<div class="search-result-item" onclick="selectLoanStudent('+ (s.id) +','+ (s.name.replace(/'/g,"\\'")) +')">'+ '<strong>'+ (s.name) +'</strong><span>'+ (s.enrollment) +' · '+ (s.class_name) +'</span>'+ '</div>'; }).join('') || '<div style="padding:10px 14px;font-size:.82rem;color:var(--muted)">Nenhum aluno encontrado</div>';
+    res.style.display = 'block';
+  }, 250);
+});
+
+  function selectLoanBook(id, title, patrimony) {
+    loanSelectedBookId = id;
+    document.getElementById('loan-book-id').value = id;
+    document.getElementById('loan-book-search').value = ''+ (title) +' ('+ (patrimony) +')';
+    document.getElementById('loan-book-results').style.display = 'none';
+    // Buscar detalhes do livro para mostrar localização
+    api('/api/books/'+ (id) +'').then(function(d) {
+      var loc = (d && d.location) ? ' — '+ (d.location) +'' : '';
+      document.getElementById('loan-book-info').innerHTML = '<span style="color:var(--success)">✓ '+ (title) +' — '+ (patrimony) +''+ (loc) +'</span>';
+    });
+    document.getElementById('loan-book-info').style.display = 'block';
+  }
+
+// Loan modal - student search
+let studentSearchTimeout;
+document.getElementById('loan-student-search').addEventListener('input', function() {
+  clearTimeout(studentSearchTimeout);
+  studentSearchTimeout = setTimeout(async function() {
+    var q = this.value.trim();
+    if (q.length < 2) { document.getElementById('loan-student-results').style.display='none'; return; }
+    var d = await api('/api/students?q=' + encodeURIComponent(q));
+    const students = d || [];
+    const res = document.getElementById('loan-student-results');
+    if (!(students && students.length)) { res.style.display='none'; return; }
+    res.innerHTML = students.map(function(s) { return '<div class="search-result-item" onclick="selectLoanStudent(' + (s.id) +',''+ (s.name.replace(/'/g,"\\'")) +'',''+ (s.enrollment) +'','+ (s.has_overdue) +')">
+        <strong>'+ (s.name) +'</strong><span>'+ (s.enrollment) +' · '+ (s.class_name||'') +' '+ (s.has_overdue ? '⚠ Pendência' : '') +'</span>
+      </div>').join('');
+    res.style.display = 'block';
+  }, 250);
+});
+
+function selectLoanStudent(id, name, enrollment, hasOverdue) {
+  loanSelectedStudentId = id;
+  document.getElementById('loan-student-id').value = id;
+  document.getElementById('loan-student-search').value = ''+ (name) +' ('+ (enrollment) +')';
+  document.getElementById('loan-student-results').style.display = 'none';
+  if (hasOverdue) toast('⚠ Aluno "'+ (name) +'" tem pendência em aberto!', 'error');
+}
+
+function setLoanMode(mode, btn) {
+  btn.parentElement.querySelectorAll('.mode-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('loan-scanner-div').style.display = mode==='scanner' ? '' : 'none';
+  document.getElementById('loan-manual-div').style.display = mode==='manual' ? '' : 'none';
+  if (mode==='scanner') setTimeout(function() { document.getElementById('loan-scan-input').focus(); }, 100);
+}
+
+function setLoanDays(days, btn) {
+  loanSelectedDays = days;
+  btn.closest('.days-toggle').querySelectorAll('.day-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  const due = new Date(); due.setDate(due.getDate() + days);
+  document.getElementById('loan-due-date').value = due.toISOString().split('T')[0];
+}
+
+function setLoanDaysDefault() {
+  loanSelectedDays = institutionLoanDays;
+  document.querySelectorAll('#loan-days-toggle .day-btn').forEach(function(b) {
+    const days = parseInt(b.textContent);
+    b.classList.toggle('active', days === institutionLoanDays);
+  });
+  const due = new Date(); due.setDate(due.getDate() + institutionLoanDays);
+  document.getElementById('loan-due-date').value = due.toISOString().split('T')[0];
+}
+
+async function fetchLoanDaysDefault() {
+  const d = await api('/api/institution/loan-days');
+  if (d) {
+    institutionLoanDays = d.loan_days_default || 14;
+  }
+}
+
+async function saveLoan() {
+  const bookId = loanSelectedBookId || document.getElementById('loan-book-id').value;
+  const studentId = loanSelectedStudentId || document.getElementById('loan-student-id').value;
+  const dueDate = document.getElementById('loan-due-date').value;
+  if (!bookId) { toast('Selecione um livro', 'error'); return; }
+  if (!studentId) { toast('Selecione um aluno', 'error'); return; }
+  const r = await api('/api/loans', {method:'POST', body: JSON.stringify({
+    book_id: parseInt(bookId), student_id: parseInt(studentId), due_date: dueDate
+  })});
+  if ((r && r.ok)) { closeModal('modal-loan'); toast('Empréstimo registrado!', 'success'); loadLoans(); loadDashboard(); }
+  else toast((r && r.error) || 'Erro ao registrar', 'error');
+}
+
+// ── RETURN MODAL ──
+document.getElementById('return-scan-input').addEventListener('change', async function() {
+  await lookupReturnByPatrimony(this.value.trim().toUpperCase());
+});
+
+async function lookupReturn() {
+  const val = document.getElementById('return-patrimony').value.trim().toUpperCase();
+  await lookupReturnByPatrimony(val);
+}
+
+async function lookupReturnByPatrimony(patrimony) {
+  if (!patrimony) return;
+  const d = await api('/api/loans/lookup-patrimony/' + encodeURIComponent(patrimony));
+  const preview = document.getElementById('return-preview');
+  if (d && d.error) {
+    preview.innerHTML = '<span style="color:var(--danger)">⚠ '+ (d.error) +'</span>';
+    preview.style.display = 'block';
+    document.getElementById('btn-confirm-return').disabled = true;
+    returnLoanId = null;
+  } else if (d) {
+    returnLoanId = d.id;
+    document.getElementById('return-loan-id').value = d.id;
+    const overdueTxt = d.is_overdue ? '<span style="color:var(--danger)">⚠ '+ (d.days_overdue) +' dia(s) em atraso</span>' : '<span style="color:var(--success)">No prazo</span>';
+    preview.innerHTML = '<table>
+      <tr><td>Livro:</td><td>'+ (d.book_title) +' ('+ (d.book_patrimony) +')</td></tr>
+      <tr><td>Aluno:</td><td>'+ (d.student_name) +' · '+ (d.student_class||'') +'</td></tr>
+      <tr><td>Retirada:</td><td>'+ (d.borrowed_at) +'</td></tr>
+      <tr><td>Previsto:</td><td>'+ (d.due_date) +'</td></tr>
+      <tr><td>Situação:</td><td>'+ (overdueTxt) +'</td></tr>
+    </table>';
+    preview.style.display = 'block';
+    document.getElementById('btn-confirm-return').disabled = false;
+  }
+}
+
+function setReturnMode(mode, btn) {
+  btn.parentElement.querySelectorAll('.mode-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('return-scanner-div').style.display = mode==='scanner' ? '' : 'none';
+  document.getElementById('return-manual-div').style.display = mode==='manual' ? '' : 'none';
+  if (mode==='scanner') setTimeout(function() { document.getElementById('return-scan-input').focus(); }, 100);
+}
+
+async function confirmReturn() {
+  if (!returnLoanId) return;
+  const r = await api('/api/loans/'+ (returnLoanId) +'/return', {method:'POST'});
+  if ((r && r.ok)) {
+    closeModal('modal-return');
+    toast('Devolução registrada com sucesso!', 'success');
+    loadLoans(); loadDashboard();
+  } else toast((r && r.error) || 'Erro', 'error');
+}
+
+// ── GLOBAL SEARCH ──
+let searchTimeout;
+document.getElementById('global-search').addEventListener('input', function() {
+  clearTimeout(searchTimeout);
+  const q = this.value.trim();
+  const res = document.getElementById('search-results');
+  if (q.length < 2) { res.classList.remove('open'); return; }
+  searchTimeout = setTimeout(async function() {
+    var d = await api('/api/search?q=' + encodeURIComponent(q));
+    if (!d) return;
+    let html = '';
+    if (d.books && d.books.length) {
+      html += '<div class="search-group-title">Livros</div>';
+      html += d.books.map(function(b) { return '<div class="search-result-item" onclick="navigate(\'books\')"><strong>'+ (b.title) +'</strong><span>'+ (b.patrimony) +' · '+ (b.author) +'</span></div>'; }).join('');
+    }
+    if (d.students && d.students.length) {
+      html += '<div class="search-group-title">Alunos</div>';
+      html += d.students.map(function(s) { return '<div class="search-result-item" onclick="navigate(\'students\')"><strong>'+ (s.name) +'</strong><span>'+ (s.enrollment) +' · '+ (s.class_name) +'</span></div>'; }).join('');
+    }
+    if (!html) html = '<div style="padding:12px 14px;font-size:.82rem;color:var(--muted)">Nenhum resultado</div>';
+    res.innerHTML = html;
+    res.classList.add('open');
+  }, 250);
+});
+document.addEventListener('click', function(e) {
+  if (!(e && e.target && e.target.closest('.search-bar'))) document.getElementById('search-results').classList.remove('open');
+});
+
+// ── REPORTS ──
+async function showReportFilters(type) {
+  currentReportType = type;
+  const titles = {
+    'active-loans':'Empréstimos Ativos',
+    'overdue':'Livros em Atraso',
+    'student-history':'Histórico por Aluno',
+    'movement':'Movimentação por Período',
+    'inventory':'Acervo Completo',
+    'most-borrowed':'Mais Emprestados',
+    'student-ranking':'Ranking por Aluno'
+  };
+  document.getElementById('report-filter-title').textContent = titles[type] || type;
+
+  const [classes, cats, students] = await Promise.all([
+    api('/api/reports/classes'), api('/api/reports/categories'), api('/api/students')
+  ]);
+
+  let html = '';
+
+  // Class filter for loans, overdue, student history, and ranking
+  if (['active-loans','overdue','student-history','student-ranking'].includes(type)) {
+    html += '<div class="filter-group"><label>Turma</label><select id="rf-class"><option value="">Todas</option>'+ ((classes||[]).map(c=>'<option>${c) +'</option>').join('')}</select></div>';
+  }
+
+  // Student filter for student history and ranking
+  if (['student-history','student-ranking'].includes(type)) {
+    html += '<div class="filter-group"><label>Aluno</label><select id="rf-student"><option value="">Selecione...</option>'+ ((students||[]).map(s=>'<option value="${s.id) +'">'+ (s.name) +' ('+ (s.enrollment) +')</option>').join('')}</select></div>';
+  }
+
+  // Date range for student history, movement, most borrowed, and ranking
+  if (['student-history','movement','most-borrowed','student-ranking'].includes(type)) {
+    html += '<div class="filter-group"><label>Data Início</label><input type="date" id="rf-from"></div>';
+    html += '<div class="filter-group"><label>Data Fim</label><input type="date" id="rf-to"></div>';
+  }
+
+  // Movement type filter
+  if (type === 'movement') {
+    html += '<div class="filter-group"><label>Tipo</label><select id="rf-type"><option value="all">Todos</option><option value="borrows">Empréstimos</option><option value="returns">Devoluções</option></select></div>';
+  }
+
+  // Category filter for inventory and most borrowed
+  if (['inventory','most-borrowed'].includes(type)) {
+    html += '<div class="filter-group"><label>Categoria</label><select id="rf-cat"><option value="">Todas</option>'+ ((cats||[]).map(c=>'<option>${c) +'</option>').join('')}</select></div>';
+  }
+
+  // Status filter for inventory
+  if (type === 'inventory') {
+    html += '<div class="filter-group"><label>Status</label><select id="rf-status"><option value="">Todos</option><option value="available">Disponível</option><option value="borrowed">Emprestado</option></select></div>';
+  }
+
+  document.getElementById('report-filter-row').innerHTML = html;
+  document.getElementById('report-filter-panel').style.display = '';
+  document.getElementById('report-print-panel').style.display = 'none';
+  document.getElementById('report-filter-panel').scrollIntoView({behavior:'smooth'});
+}
+
+async function runReport() {
+  const g = id => document.getElementById(id)?.value || '';
+  const params = new URLSearchParams();
+
+  // Common filters
+  if (g('rf-from')) params.set('date_from', g('rf-from'));
+  if (g('rf-to')) params.set('date_to', g('rf-to'));
+  if (g('rf-type')) params.set('type', g('rf-type'));
+  if (g('rf-cat')) params.set('category', g('rf-cat'));
+  if (g('rf-status')) params.set('status', g('rf-status'));
+
+  // Class filter for applicable reports
+  if (g('rf-class') && ['active-loans','overdue','student-history','student-ranking'].includes(currentReportType)) {
+    params.set('class_name', g('rf-class'));
+  }
+
+  // Student filter for student history and ranking
+  if (g('rf-student') && ['student-history','student-ranking'].includes(currentReportType)) {
+    params.set('student_id', g('rf-student'));
+  }
+
+  const urlMap = {
+    'active-loans': '/api/reports/active-loans',
+    'overdue': '/api/reports/overdue',
+    'student-history': '/api/reports/student-history',
+    'movement': '/api/reports/movement',
+    'inventory': '/api/reports/inventory',
+    'most-borrowed': '/api/reports/most-borrowed',
+    'student-ranking': '/api/reports/student-ranking'
+  };
+
+  const url = ''+ (urlMap[currentReportType]) +'?'+ (params) +'';
+  console.log('Report URL:', url);
+
+  try {
+    const r = await fetch(url, {headers:{'Content-Type':'application/json'}});
+    console.log('Report status:', r.status);
+    const d = await r.json();
+    console.log('Report data:', d);
+
+    if (d?.error) { toast(d.error, 'error'); return; }
+    if (d?.license_inactive) { navigate('license_check'); toast('Licenca inativa', 'error'); return; }
+
+    const inst = await api('/api/institution');
+    document.getElementById('print-inst-name').textContent = inst?.name || 'Biblioteca';
+
+    const subtitles = {'active-loans':'Emprestimos Ativos','overdue':'Livros em Atraso','student-history':'Historico por Aluno','movement':'Movimentacao por Periodo','inventory':'Acervo Completo','most-borrowed':'Livros Mais Emprestados','student-ranking':'Ranking por Aluno'};
+    document.getElementById('print-report-subtitle').textContent = ''+ (subtitles[currentReportType]) +' — Gerado em '+ (new Date().toLocaleDateString('pt-BR')) +' '+ (new Date().toLocaleTimeString('pt-BR')) +'';
+
+    // Build header with institution info
+    const logoUrl = inst?.logo_path ? '/api/institution/logo-file?t='+ (Date.now()) +'' : '';
+    const headerHtml = '
+    <div class="print-header" style="display:flex;align-items:center;gap:15px;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #333">
+      '+ (logoUrl ? '<img src="${logoUrl) +'" style="max-height:60px;max-width:120px;object-fit:contain">' : ''}
+      <div>
+        <h2 style="margin:0 0 4px 0;font-size:16px">${inst?.name || 'Biblioteca'}</h2>
+        ${inst?.cnpj ? '<p style="margin:0;font-size:10px;color:#555">CNPJ: '+ (inst.cnpj) +'</p>' : ''}
+        ${inst?.address ? '<p style="margin:0;font-size:10px;color:#555">'+ (inst.address) +'</p>' : ''}
+        <p style="margin:4px 0 0;font-size:10px;color:#555">
+          ${inst?.phone ? 'Tel: '+ (inst.phone) +'' : ''}
+          ${inst?.phone && inst?.email ? ' | ' : ''}
+          ${inst?.email ? 'Email: '+ (inst.email) +'' : ''}
+        </p>
+      </div>
+    </div>';
+    
+    document.getElementById('print-content').innerHTML = headerHtml + buildReportTable(currentReportType, d);
+    document.getElementById('report-print-panel').style.display = '';
+    document.getElementById('report-print-panel').scrollIntoView({behavior:'smooth'});
+  } catch(e) {
+    console.error('Report error:', e);
+    toast('Erro ao gerar relatorio: ' + e.message, 'error');
+  }
+}
+
+function buildReportTable(type, data) {
+  if (!data || (Array.isArray(data) && !data.length) || (data.loans && !data.loans.length)) {
+    return '<p style="color:var(--muted);font-size:.85rem;margin-top:12px">Nenhum resultado encontrado.</p>';
+  }
+
+  if (type === 'student-history') {
+    const s = data.student;
+    let html = '<p style="font-size:.85rem;margin-bottom:12px"><strong>Aluno:</strong> '+ (s.name) +' · Matrícula: '+ (s.enrollment) +' · Turma: '+ (s.class_name||'—') +'</p>';
+    html += loanTable(data.loans);
+    html += '<p style="margin-top:12px;font-size:.78rem;color:var(--muted)">Total: '+ (data.total) +' | Ativos: '+ (data.active) +' | Devolvidos: '+ (data.returned) +'</p>';
+    return html;
+  }
+  if (type === 'inventory') {
+    return '<table><thead><tr><th>Patrimônio</th><th>Título</th><th>Autor</th><th>Categoria</th><th>Status</th></tr></thead><tbody>
+      '+ (data.map(b=>'<tr><td>(b.patrimony) +'</td><td>'+ (b.title) +'</td><td>'+ (b.author) +'</td><td>'+ (b.category||'—') +'</td><td>'+ (b.available?'Disponível':'Emprestado') +'</td></tr>').join('')}
+    </tbody></table><p style="font-size:.78rem;color:var(--muted);margin-top:10px">Total: ${data.length} livros</p>';
+  }
+  if (type === 'most-borrowed') {
+    return '<table><thead><tr><th>#</th><th>Patrimônio</th><th>Título</th><th>Autor</th><th>Categoria</th><th>Empréstimos</th></tr></thead><tbody>
+      '+ (data.map((b,i)=>'<tr><td>(i+1) +'</td><td>'+ (b.patrimony||'—') +'</td><td>'+ (b.title) +'</td><td>'+ (b.author) +'</td><td>'+ (b.category||'—') +'</td><td><strong>'+ (b.total_loans) +'</strong></td></tr>').join('')}
+    </tbody></table>';
+  }
+  if (type === 'movement') {
+    return '<table><thead><tr><th>Tipo</th><th>Aluno</th><th>Livro</th><th>Patrimônio</th><th>Data/Hora</th></tr></thead><tbody>
+      '+ (data.map(l=>'<tr><td>(l.event) +'</td><td>'+ (l.student_name) +'</td><td>'+ (l.book_title) +'</td><td>'+ (l.book_patrimony) +'</td><td>'+ (l.event_at) +'</td></tr>').join('')}
+    </tbody></table><p style="font-size:.78rem;color:var(--muted);margin-top:10px">Total: ${data.length} registros</p>';
+  }
+  if (type === 'student-ranking') {
+    const filtered = (data || []).filter(s => s.total_loans > 0);
+    if (!filtered.length) return '<p style="color:var(--muted);font-size:.85rem;margin-top:12px">Nenhum empréstimo encontrado no período.</p>';
+    return '<table><thead><tr><th>#</th><th>Aluno</th><th>Matrícula</th><th>Turma</th><th>Empréstimos</th><th>Primeiro Empréstimo</th><th>Último Empréstimo</th></tr></thead><tbody>
+      '+ (filtered.map((s,i)=>'<tr><td>(i+1) +'</td><td><strong>'+ (s.name) +'</strong></td><td>'+ (s.enrollment) +'</td><td>'+ (s.class_name||'—') +'</td><td><strong>'+ (s.total_loans) +'</strong></td><td>'+ (s.first_loan?.split(' ')[0]||'—') +'</td><td>'+ (s.last_loan?.split(' ')[0]||'—') +'</td></tr>').join('')}
+    </tbody></table><p style="font-size:.78rem;color:var(--muted);margin-top:10px">Total: ${filtered.length} alunos com empréstimos</p>';
+  }
+  // active-loans, overdue
+  return loanTable(data) + '<p style="font-size:.78rem;color:var(--muted);margin-top:10px">Total: '+ (data.length) +' registro(s)</p>';
+}
+
+function loanTable(loans) {
+  return '<table><thead><tr><th>Aluno</th><th>Turma</th><th>Livro</th><th>Patrimônio</th><th>Retirada</th><th>Devolução</th><th>Status</th></tr></thead><tbody>
+    '+ (loans.map(l=>'<tr><td>(l.student_name) +'</td><td>'+ (l.student_class||'—') +'</td><td>'+ (l.book_title) +'</td><td>'+ (l.book_patrimony) +'</td><td>'+ (l.borrowed_at) +'</td><td>'+ (l.returned ? l.returned_at : l.due_date) +'</td><td>${l.returned?'Devolvido':l.is_overdue?'Atraso (${l.days_overdue}d)':'Ativo'}</td></tr>').join('')}
+  </tbody></table>';
+}
+
+// ── ACTIVITY ──
+async function loadActivity() {
+  const d = await api('/api/activity');
+  if (!d) return;
+  const icons = {borrow:'borrow',return:'return',register_book:'register',register_student:'register',login:'login',backup:'register'};
+  document.getElementById('activity-list').innerHTML = d.map(function(a) { return '
+    <div class="activity-item">
+      <div class="act-dot ' + (icons[a.type]||'register') +'"></div>
+      <div><div class="act-text">'+ (a.description) +'</div><div class="act-time">'+ (a.created_at) +' · '+ (a.user) +'</div></div>
+    </div>').join('') || '<div class="empty"><p>Sem atividade registrada</p></div>';
+}
+
+// ── INSTITUTION ──
+async function loadInstitution() {
+  const d = await api('/api/institution');
+  if (!d) return;
+  document.getElementById('inst-name').value = d.name || '';
+  document.getElementById('inst-cnpj').value = d.cnpj || '';
+  document.getElementById('inst-address').value = d.address || '';
+  document.getElementById('inst-phone').value = d.phone || '';
+  document.getElementById('inst-email').value = d.email || '';
+  document.getElementById('inst-days').value = d.loan_days_default || 14;
+  document.querySelectorAll('#p-institution .day-btn').forEach(b => b.classList.remove('active'));
+  const daysMap = {7:0,14:1,21:2,30:3};
+  const idx = daysMap[d.loan_days_default];
+  if (idx !== undefined) document.querySelectorAll('#p-institution .day-btn')[idx]?.classList.add('active');
+  if (d.logo_path) {
+    document.getElementById('inst-logo-preview').innerHTML = '<img src="/api/institution/logo-file" style="width:100%;height:100%;object-fit:cover">';
+    loadLogo();
+  }
+  loadCategories();
+}
+
+async function loadLogo() {
+  try {
+    const r = await fetch('/api/institution');
+    const d = await r.json();
+    if (d?.logo_path) {
+      document.getElementById('brand-icon').innerHTML = '<img src="/api/institution/logo-file" style="width:100%;height:100%;object-fit:cover;border-radius:6px">';
+    }
+  } catch(e) {}
+}
+
+async function loadCategories() {
+  const cats = await api('/api/categories');
+  const list = document.getElementById('categories-list');
+  if (!cats || !cats.length) { list.innerHTML = '<p style="color:var(--muted);font-size:.82rem">Nenhuma categoria</p>'; return; }
+  list.innerHTML = cats.map(function(c) { return '
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:.88rem">' + (c.name) +'</span>
+      {% if user_role == 'admin' %}<button class="btn btn-danger btn-sm" onclick="deleteCategory('+ (c.id) +',''+ (c.name.replace(/'/g,"\\'")) +'')" style="padding:3px 8px;font-size:.7rem">Excluir</button>{% endif %}
+    </div>').join('');
+}
+
+async function saveCategory() {
+  const name = document.getElementById('cat-name').value.trim();
+  if (!name) { toast('Nome é obrigatório', 'error'); return; }
+  const r = await api('/api/categories', {method:'POST', body:JSON.stringify({name})});
+  if ((r && r.ok)) { closeModal('modal-category'); toast('Categoria criada!', 'success'); loadCategories(); loadBookCategories(); }
+  else toast((r && r.error) || 'Erro', 'error');
+}
+
+async function deleteCategory(id, name) {
+  if (!confirm('Excluir "'+ (name) +'"?')) return;
+  const r = await api('/api/categories/'+ (id) +'', {method:'DELETE'});
+  if ((r && r.ok)) { toast('Categoria excluída!', 'success'); loadCategories(); loadBookCategories(); }
+  else toast((r && r.error) || 'Erro', 'error');
+}
+
+async function uploadLogo(input) {
+  if (!input.files[0]) return;
+  const fd = new FormData();
+  fd.append('logo', input.files[0]);
+  try {
+    const r = await fetch('/api/institution/logo', {method:'POST', body:fd});
+    const d = await r.json();
+    if (d.ok) {
+      toast('Logo atualizado!', 'success');
+      const ts = Date.now();
+      document.getElementById('inst-logo-preview').innerHTML = '<img src="/api/institution/logo-file?t='+ (ts) +'" style="width:100%;height:100%;object-fit:cover">';
+      document.getElementById('brand-icon').innerHTML = '<img src="/api/institution/logo-file?t='+ (ts) +'" style="width:100%;height:100%;object-fit:cover;border-radius:6px">';
+    } else toast(d.error || 'Erro', 'error');
+  } catch(e) { toast('Erro de conexão', 'error'); }
+}
+
+function downloadTemplate(type) {
+  window.location.href = '/api/'+ (type) +'/import-template';
+}
+
+async function saveInstitution() {
+  const data = {
+    name: document.getElementById('inst-name').value.trim(),
+    cnpj: document.getElementById('inst-cnpj').value.trim(),
+    address: document.getElementById('inst-address').value.trim(),
+    phone: document.getElementById('inst-phone').value.trim(),
+    email: document.getElementById('inst-email').value.trim(),
+    loan_days_default: parseInt(document.getElementById('inst-days').value) || 14
+  };
+  const r = await api('/api/institution', {method:'PUT', body: JSON.stringify(data)});
+  if ((r && r.ok)) { toast('Dados salvos!', 'success'); document.getElementById('inst-name-sidebar').textContent = data.name; }
+  else toast('Erro ao salvar', 'error');
+}
+
+function setDefaultDays(days, btn) {
+  document.querySelectorAll('#p-institution .day-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('inst-days').value = days;
+}
+
+// ── USERS ──
+async function loadUsers() {
+  const d = await api('/api/users');
+  if (!d) return;
+  const isAdmin = '{{ user_role }}' === 'admin';
+  document.getElementById('users-body').innerHTML = d.map(function(u) { return '
+    <tr>
+      <td>' + (u.name) +'</td><td>'+ (u.email) +'</td>
+      <td>'+ (u.role === 'admin' ? 'Administrador' : 'Operador') +'</td>
+      <td>'+ (u.last_login) +'</td>
+      <td><span class="badge '+ (u.active?'active':'returned') +'">'+ (u.active?'Ativo':'Inativo') +'</span></td>
+      '+ (isAdmin ? '<td><button class="btn btn-secondary btn-sm" onclick='editUser(${JSON.stringify(u)) +')'>Editar</button><button class="btn btn-danger btn-sm" onclick='deleteUser('+ (u.id) +',"'+ (u.name.replace(/'/g,"\\'")) +'")'>Excluir</button></td>' : ''}
+    </tr>').join('');
+}
+
+async function deleteUser(id, name) {
+  if (!confirm('Excluir "'+ (name) +'"?')) return;
+  const r = await api('/api/users/'+ (id) +'', {method: 'DELETE'});
+  if ((r && r.ok)) { toast('Usuário excluído!', 'success'); loadUsers(); }
+  else toast((r && r.error) || 'Erro', 'error');
+}
+
+async function saveUser() {
+  const id = document.getElementById('user-edit-id').value;
+  const data = {
+    name: document.getElementById('user-name').value.trim(),
+    email: document.getElementById('user-email').value.trim(),
+    password: document.getElementById('user-password').value,
+    role: document.getElementById('user-role').value
+  };
+  if (!data.name || !data.email) { toast('Nome e e-mail são obrigatórios', 'error'); return; }
+  const url = id ? '/api/users/'+ (id) +'' : '/api/users';
+  const method = id ? 'PUT' : 'POST';
+  const r = await api(url, {method, body: JSON.stringify(data)});
+  if ((r && r.ok)) { closeModal('modal-user'); toast('Usuário salvo!', 'success'); loadUsers(); }
+  else toast((r && r.error) || 'Erro', 'error');
+}
+
+function editUser(u) {
+  document.getElementById('user-modal-title').textContent = 'Editar Usuário';
+  document.getElementById('user-edit-id').value = u.id;
+  document.getElementById('user-name').value = u.name;
+  document.getElementById('user-email').value = u.email;
+  document.getElementById('user-email').disabled = true;
+  document.getElementById('user-password').value = '';
+  document.getElementById('user-role').value = u.role;
+  document.getElementById('modal-user').classList.add('open');
+}
+
+async function changePassword() {
+  const cur = document.getElementById('pw-current').value;
+  const nw = document.getElementById('pw-new').value;
+  const conf = document.getElementById('pw-confirm').value;
+  if (nw !== conf) { toast('As senhas não coincidem', 'error'); return; }
+  const r = await api('/api/users/change-password', {method:'POST', body: JSON.stringify({current_password:cur, new_password:nw})});
+  if ((r && r.ok)) { closeModal('modal-change-pw'); toast('Senha alterada!', 'success'); }
+  else toast((r && r.error) || 'Erro', 'error');
+}
+
+// ── BACKUP ──
+async function loadBackups() {
+  const d = await api('/api/backup/list');
+  if (!d) return;
+  const tbody = document.getElementById('backups-body');
+  if (!d.length) { tbody.innerHTML = '<tr><td colspan="3" class="empty"><p>Nenhum backup local</p></td></tr>'; return; }
+  tbody.innerHTML = d.map(function(f) { return '<tr><td>📄 ' + (f.name) +'</td><td>'+ (f.size_kb) +' KB</td><td>'+ (f.date) +'</td></tr>').join('');
+}
+
+async function restoreBackup(input) {
+  if (!input.files[0]) return;
+  if (!confirm('⚠️ Tem certeza? O banco atual será substituído. Um backup de segurança será criado automaticamente.')) return;
+  const fd = new FormData();
+  fd.append('file', input.files[0]);
+  try {
+    const r = await fetch('/api/backup/restore', {method:'POST', body:fd});
+    const d = await r.json();
+    if (d.ok) toast('Banco restaurado! Recarregando...', 'success'), setTimeout(() => location.reload(), 2000);
+    else toast(d.error || 'Erro', 'error');
+  } catch(e) { toast('Erro de conexão', 'error'); }
+}
+
+// ── CSV IMPORT ──
+async function importCSV(type, input) {
+  if (!input.files[0]) return;
+  const fd = new FormData();
+  fd.append('file', input.files[0]);
+  try {
+    const r = await fetch('/api/'+ (type) +'/import-csv', {method:'POST', body:fd});
+    const d = await r.json();
+    if (d.ok) {
+      toast('✓ '+ (d.imported) +' importados, '+ (d.skipped) +' ignorados', d.skipped > 0 ? 'info' : 'success');
+      if (type === 'books') loadBooks();
+      else loadStudents();
+    } else toast(d.error || 'Erro', 'error');
+  } catch(e) { toast('Erro de conexão', 'error'); }
+  input.value = '';
+}
+
+// ── HELPERS ──
+function statusBadge(l) {
+  if (l.returned) return '<span class="badge returned"><span class="badge-dot"></span>Devolvido</span>';
+  if (l.is_overdue) return '<span class="badge late"><span class="badge-dot"></span>Atrasado</span>';
+  return '<span class="badge active"><span class="badge-dot"></span>Ativo</span>';
+}
+
+function debounce(fn, ms) {
+  let t;
+  return (Object.assign({}, args)) => { clearTimeout(t); t = setTimeout(function() { fn(Object.assign({}, args); }), ms); };
+}
+
+// ── LICENSE CHECK PAGE ──
+async function loadLicensePage() {
+  try {
+    const lic = await api('/api/license/status');
+    
+    // Always update machine ID from API
+    const machineIdEl = document.getElementById('lic-machine-id');
+    if (machineIdEl) {
+      if ((lic && lic.machine_id)) {
+        machineIdEl.textContent = lic.machine_id;
+      } else {
+        // Try to fetch machine ID if not in response
+        fetch('/api/license/status')
+          .then(r => r.json())
+          .then(d => {
+            if (d.machine_id) machineIdEl.textContent = d.machine_id;
+          })
+          .catch(e => console.error('Error loading machine ID:', e));
+      }
+    }
+    
+    // Show appropriate message based on license status
+    if ((lic && lic.active)) {
+      toast('Licença ativa! Redirecionando...', 'success');
+      setTimeout(function() { navigate('dashboard'); }, 1500);
+    } else if ((lic && lic.expired)) {
+      toast('⚠️ Licença expirada!', 'error');
+    }
+  } catch(e) {
+    console.error('Error loading license page:', e);
+  }
+}
+  }
+  
+  if ((lic && lic.active)) {
+    toast('Licença ativa! Redirecionando...', 'success');
+    setTimeout(function() { navigate('dashboard'); }, 1500);
+  }
+}
+
+async function activateLicenseFromPage() {
+  const key = document.getElementById('lic-key').value.trim();
+  const msg = document.getElementById('lic-msg-page');
+  if (key.length < 10) { msg.className='lic-msg err'; msg.style.color='var(--danger)'; msg.textContent='Chave muito curta.'; return; }
+  msg.textContent='Verificando...'; msg.style.color='var(--muted)';
+  try {
+    const r = await fetch('/api/license/activate', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({key})
+    });
+    const d = await r.json();
+    if (d.ok) {
+      msg.style.color='var(--success)';
+      msg.textContent='✓ Ativada! Instituição: '+ (d.institution) +' | Válida até: '+ (d.valid_until) +'';
+      toast('Licença ativada com sucesso!', 'success');
+      setTimeout(function() { navigate('dashboard'); }, 2000);
+    } else {
+      msg.style.color='var(--danger)';
+      msg.textContent='✗ ' + d.error;
+    }
+  } catch(e) {
+    msg.style.color='var(--danger)'; msg.textContent='Erro de conexão';
+  }
+}
+
+document.getElementById('lic-key')?.addEventListener('input', function(e) {
+  let val = e.target.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+  let parts = val.match(/.{1,5}/g) || [];
+  e.target.value = parts.join('-').substring(0,29);
+});
+
+// ── PERMISSIONS ──
+const PERM_LABELS = {
+  can_create_books: 'Cadastrar livros',
+  can_edit_books: 'Editar livros',
+  can_delete_books: 'Excluir livros',
+  can_create_students: 'Cadastrar alunos',
+  can_edit_students: 'Editar alunos',
+  can_delete_students: 'Excluir alunos',
+  can_create_loans: 'Registrar emprestimos',
+  can_return_books: 'Registrar devolucoes',
+  can_view_reports: 'Visualizar relatorios',
+  can_print_barcodes: 'Imprimir etiquetas',
+  can_manage_categories: 'Gerenciar categorias',
+  can_backup: 'Fazer backup',
+  can_view_activity: 'Visualizar atividades'
+};
+
+async function loadPermissions() {
+  const perms = await api('/api/operator-permissions');
+  if (!perms) return;
+  const list = document.getElementById('perms-list');
+  let html = '';
+  for (const [key, label] of Object.entries(PERM_LABELS)) {
+    const checked = perms[key] ? 'checked' : '';
+    html += '<label class="perm-item" style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer">
+      <input type="checkbox" data-perm="'+ (key) +'" '+ (checked) +' style="width:18px;height:18px;accent-color:var(--accent)">
+      <span style="font-size:.9rem">'+ (label) +'</span>
+    </label>';
+  }
+  list.innerHTML = html;
+}
+
+async function savePermissions() {
+  const perms = {};
+  document.querySelectorAll('[data-perm]').forEach(function(cb) { perms[cb.dataset.perm] = cb.checked; });
+  const r = await api('/api/operator-permissions', {method:'POST', body:JSON.stringify(perms)});
+  if ((r && r.ok)) toast('Permissoes salvas!', 'success');
+  else toast((r && r.error) || 'Erro ao salvar', 'error');
+}
+
+// ── BARCODES ──
+let barcodeBooks = [];
+async function loadBarcodeBooks() {
+  const d = await api('/api/books?per_page=10000');
+  if (!d) {
+    toast('Erro ao carregar livros', 'error');
+    return;
+  }
+  barcodeBooks = d.books || d || [];
+  renderBarcodeBooks();
+}
+
+function renderBarcodeBooks() {
+  const tbody = document.getElementById('barcode-books-body');
+  if (!barcodeBooks.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Nenhum livro encontrado</td></tr>'; return; }
+  tbody.innerHTML = barcodeBooks.map(function(b) { return '
+    <tr>
+      <td><input type="checkbox" class="bc-check" data-id="' + (b.id) +'" onchange="updateBarcodeCount()"></td>
+      <td><strong>'+ (b.patrimony) +'</strong></td>
+      <td>'+ (b.title) +'</td>
+      <td>'+ (b.author || '—') +'</td>
+      <td><span class="badge '+ (b.available ? 'available' : 'unavailable') +'">'+ (b.available ? 'Disponivel' : 'Emprestado') +'</span></td>
+    </tr>
+  ').join('');
+  updateBarcodeCount();
+}
+
+function toggleAllBarcodes(checked) {
+  document.querySelectorAll('.bc-check').forEach(cb => cb.checked = checked);
+  updateBarcodeCount();
+}
+
+function updateBarcodeCount() {
+  const count = document.querySelectorAll('.bc-check:checked').length;
+  document.getElementById('bc-selected-count').textContent = count;
+}
+
+async function printSelectedBarcodes() {
+  const ids = Array.from(document.querySelectorAll('.bc-check:checked')).map(cb => parseInt(cb.dataset.id));
+  if (!ids.length) { toast('Selecione ao menos um livro', 'error'); return; }
+  const preset = document.getElementById('bc-preset').value;
+  const books = barcodeBooks.filter(b => ids.includes(b.id));
+  
+  const presets = {
+    'a4-3col':  {w:63.5, h:38.1, fs:9,  cols:3, gap:2, margin:5, label:'A4 - 3 colunas (padrao)'},
+    'a4-2col':  {w:105,  h:74,   fs:11, cols:2, gap:4, margin:5, label:'A4 - 2 colunas (grande)'},
+    'a4-4col':  {w:48,   h:25,   fs:7,  cols:4, gap:1, margin:3, label:'A4 - 4 colunas (pequeno)'},
+    'terminal-1col': {w:302,  h:151,  fs:12, cols:1, gap:4, margin:10,label:'Terminal - 1 coluna (grande)'}
+  };
+  const p = presets[preset] || presets['a4-3col'];
+  const colWidth = 'calc(' + (100/p.cols) + '% - ' + (p.gap*(p.cols-1)/p.cols) + 'px)';
+
+  let html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Etiquetas - ' + p.label + '</title>\
+<style>\
+@page{margin:' + p.margin + 'mm;size:A4}\
+body{margin:0;padding:0;font-family:Arial,sans-serif;font-size:' + p.fs + 'px}\
+.grid{display:flex;flex-wrap:wrap;gap:' + p.gap + 'px;justify-content:center}\
+.label{border:1px dashed #999;display:flex;flex-direction:column;align-items:center;justify-content:center;\
+  width:' + colWidth + ';height:' + p.h + 'mm;page-break-inside:avoid;padding:3px;box-sizing:border-box;overflow:hidden}\
+.label .pat{font-weight:bold;font-size:' + p.fs + 'px;margin-bottom:1px;line-height:1.1}\
+.label .tit{font-size:' + (p.fs-1) + 'px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:95%;line-height:1.1}\
+.label img{max-width:90%;max-height:' + (p.h*0.45) + 'mm;width:auto;height:auto}\
+@media print{.no-print{display:none}}\
+</style></head><body>\
+<div class="no-print" style="padding:10px;text-align:center;position:fixed;top:0;left:0;right:0;background:#fff;z-index:999;border-bottom:1px solid #ccc">\
+  <button onclick="window.print()" style="padding:8px 20px;font-size:14px;cursor:pointer">🖨️ Imprimir</button>\
+  <button onclick="window.close()" style="padding:8px 20px;font-size:14px;cursor:pointer;margin-left:8px">Fechar</button>\
+  <p style="font-size:12px;color:#666;margin:5px 0 0">' + books.length + ' etiquetas selecionadas | ' + p.label + '</p>\
+</div>\
+<div style="height:60px"></div>\
+<div class="grid">';
+  for (const b of books) {
+    html += '<div class="label"><div class="pat">' + b.patrimony + '</div><div class="tit">' + b.title + '</div><img src="/api/books/' + b.id + '/barcode" alt="' + b.patrimony + '"></div>';
+  }
+  html += '</div></body></html>';
+
+  const win = window.open('', '_blank');
+  if (win) {
+    win.document.write(html);
+    win.document.close();
+  } else {
+    toast('Permita pop-ups para imprimir etiquetas', 'error');
+  }
+}
+
+// ── INIT ──
+let opPerms = {};
+async function loadOperatorPermissions() {
+  const p = await api('/api/operator-permissions');
+  if (p) {
+    opPerms = p;
+    applyPermissions();
+  }
+}
+
+// ── CLEANUP ──
+async function runCleanup() {
+  const tables = [];
+  if (document.getElementById('clean-books')?.checked) tables.push('books');
+  if (document.getElementById('clean-students')?.checked) tables.push('students');
+  if (document.getElementById('clean-loans')?.checked) tables.push('loans');
+  if (document.getElementById('clean-logs')?.checked) tables.push('activity_log');
+  if (document.getElementById('clean-categories')?.checked) tables.push('categories');
+  if (!tables.length) { toast('Nenhum dado selecionado', 'error'); return; }
+  if (!confirm('Tem certeza? Esta acao ira APAGAR os dados selecionados.\nUm backup sera criado automaticamente.')) return;
+  const btn = document.getElementById('btn-cleanup');
+  const status = document.getElementById('cleanup-status');
+  btn.disabled = true;
+  btn.textContent = 'Limpando...';
+  status.textContent = 'Criando backup e limpando dados...';
+  const r = await fetch('/api/cleanup', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({tables})
+  }).then(r => r.json()).catch(() => null);
+  btn.disabled = false;
+  btn.textContent = '🗑️ Limpar Dados Selecionados';
+  if ((r && r.ok)) {
+    status.textContent = 'Limpeza concluida! Backup: '+ (r.backup) +'';
+    toast('Dados apagados com sucesso!', 'success');
+  } else {
+    status.textContent = 'Erro: ' + ((r && r.error) || 'falha na comunicacao');
+    toast((r && r.error) || 'Erro ao limpar dados', 'error');
+  }
+}
+
+function applyPermissions() {
+  const isAdmin = '{{ user_role or '' }}' === 'admin';
+  if (isAdmin) return;
+  if (!opPerms.can_create_books) document.querySelector('.perm-create-books')?.remove();
+  if (!opPerms.can_create_students) document.querySelector('.perm-create-students')?.remove();
+  if (!opPerms.can_view_reports) document.querySelector('[data-page="reports"]')?.remove();
+  if (!opPerms.can_print_barcodes) document.querySelector('[data-page="barcodes"]')?.remove();
+  if (!opPerms.can_manage_categories) document.querySelector('.perm-manage-cats')?.remove();
+  if (!opPerms.can_backup) document.querySelector('[data-page="backup"]')?.remove();
+  if (!opPerms.can_view_activity) document.querySelector('[data-page="activity"]')?.remove();
+  document.querySelector('.perm-save-inst')?.remove();
+}
+
+setInterval(updateDT, 1000);
+updateDT();
+fetchLoanDaysDefault();
+loadOperatorPermissions();
+loadLogo();
+loadPage(currentPage);
+</script>
+</body>
+</html>

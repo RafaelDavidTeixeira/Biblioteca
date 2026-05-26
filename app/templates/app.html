@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblioteca — {{ institution.name if institution else 'Sistema' }}</title>
+<link rel="stylesheet" href="/static/css/app.css">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<script src="/static/chart.min.js"></script>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-icon" id="brand-icon">B</div>
+    <div>
+      <div id="inst-name-sidebar" style="font-weight:700;font-size:.9rem;line-height:1.2;color:#fff">{{ institution.name if institution else 'Biblioteca' }}</div>
+      <small style="color:var(--muted);font-size:.68rem">Sistema de Biblioteca</small>
+    </div>
+  </div>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-label">Principal</div>
+      <div class="nav-item {% if page=='dashboard' %}active{% endif %}" data-page="dashboard">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item {% if page=='books' %}active{% endif %}" data-page="books">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        Livros
+      </div>
+      <div class="nav-item {% if page=='students' %}active{% endif %}" data-page="students">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        Alunos
+      </div>
+      <div class="nav-item {% if page=='loans' %}active{% endif %}" data-page="loans">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+        Empréstimos
+        <span class="nav-badge" id="overdue-badge" style="display:none">0</span>
+      </div>
+      <div class="nav-item {% if page=='reservations' %}active{% endif %}" data-page="reservations">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+        Reservas
+        <span class="nav-badge" id="reservation-badge" style="display:none;background:var(--warning)">0</span>
+      </div>
+      <div class="nav-item {% if page=='charts' %}active{% endif %}" data-page="charts">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        Gráficos
+      </div>
+      <div class="nav-item {% if page=='reports' %}active{% endif %}" data-page="reports">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Relatórios
+      </div>
+      <div class="nav-item {% if page=='barcodes' %}active{% endif %}" data-page="barcodes">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 4h18M3 4v16M3 4l18 16M21 4v16M21 4L3 20M7 4v16M11 4v16M15 4v16M17 4v16"/></svg>
+        Etiquetas
+      </div>
+      <div class="nav-item {% if page=='activity' %}active{% endif %}" data-page="activity">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Atividade
+      </div>
+      <div class="nav-item {% if page=='backup' %}active{% endif %}" data-page="backup">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+        Backup
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Configurações</div>
+      {% if user_role == 'admin' %}
+      <div class="nav-item {% if page=='institution' %}active{% endif %}" data-page="institution">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+        Instituição
+      </div>
+      {% endif %}
+      <div class="nav-item {% if page=='categories' %}active{% endif %}" data-page="categories" id="nav-categories">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+        Categorias
+      </div>
+      {% if user_role == 'admin' %}
+      <div class="nav-item {% if page=='permissions' %}active{% endif %}" data-page="permissions">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        Permissões
+      </div>
+      {% endif %}
+      <div class="nav-item {% if page=='users' %}active{% endif %}" data-page="users">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Usuários
+      </div>
+      {% if user_role == 'admin' %}
+      <div class="nav-item {% if page=='cleanup' %}active{% endif %}" data-page="cleanup">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        Limpeza de Dados
+      </div>
+      {% endif %}
+      <div class="nav-item" onclick="openSobre()" style="cursor:pointer">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Sobre
+      </div>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div id="lic-widget" class="lic-widget" style="display:none">
+      <strong id="lic-widget-text">Licença</strong>
+      <span id="lic-widget-sub"></span>
+    </div>
+    <div class="sidebar-user">
+      <div class="avatar" id="user-avatar">{{ user_name[0].upper() if user_name else 'U' }}</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name">{{ user_name }}</div>
+        <div class="sidebar-user-role">{{ 'Administrador' if user_role == 'admin' else 'Operador' }}</div>
+      </div>
+      <button class="btn-logout" title="Trocar Usuário" onclick="location.href='/logout'" style="font-size:.8rem;padding:4px 8px">⇄</button>
+      <button class="btn-logout" title="Sair" onclick="handleExit()">⏻</button>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ── DASHBOARD ── -->
+<div class="page {% if page=='dashboard' %}active{% endif %}" id="p-dashboard">
+  <div class="page-header">
+    <h2>Dashboard</h2>
+    <div class="header-actions">
+      <div class="search-bar" style="position:relative">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" id="global-search" placeholder="Buscar aluno, livro..." autocomplete="off">
+        <div class="search-results" id="search-results"></div>
+      </div>
+    </div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-icon blue">📖</div><div class="stat-val" id="stat-books">—</div><div class="stat-label">Livros cadastrados</div><div class="stat-change pos" id="stat-items" style="display:none"></div></div>
+    <div class="stat-card"><div class="stat-icon yellow">🎓</div><div class="stat-val" id="stat-students">—</div><div class="stat-label">Alunos ativos</div></div>
+    <div class="stat-card"><div class="stat-icon green">📋</div>      <div class="stat-val" id="stat-loans">—</div><div class="stat-label">Empréstimos ativos</div></div>
+    <div class="stat-card"><div class="stat-icon red">⚠️</div><div class="stat-val" id="stat-overdue">—</div><div class="stat-label">Atrasos</div><div class="stat-change neg" id="stat-overdue-msg" style="display:none">Requer atencao</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3>Empréstimos Recentes</h3><span class="card-link" onclick="navigate('loans')">Ver todos →</span></div>
+    <div class="card-body"><div class="tbl-wrap"><table><thead><tr><th>Aluno</th><th>Livro</th><th>Patrimônio</th><th>Retirada</th><th>Devolução</th><th>Status</th></tr></thead><tbody id="dash-loans-body"></tbody></table></div></div>
+  </div>
+</div>
+
+<!-- ── BOOKS ── -->
+<div class="page {% if page=='books' %}active{% endif %}" id="p-books">
+  <div class="page-header">
+    <h2>Livros</h2>
+    <div class="header-actions">
+       <div class="search-bar"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg><input type="text" id="books-search" placeholder="Título, autor, patrimônio..." autocomplete="off"></div>
+      <select id="books-sort" class="btn btn-secondary" style="cursor:pointer;width:auto" onchange="loadBooks(document.getElementById('books-search').value)">
+        <option value="title_asc">A-Z (Título)</option>
+        <option value="title_desc">Z-A (Título)</option>
+        <option value="patrimony_asc">Patrimônio crescente</option>
+        <option value="patrimony_desc">Patrimônio decrescente</option>
+      </select>
+      {% if user_role == 'admin' %}<label class="btn btn-secondary" style="cursor:pointer"><input type="file" accept=".csv" style="display:none" onchange="importCSV('books',this)">📥 Importar CSV</label>
+      <button class="btn btn-secondary" onclick="downloadTemplate('books')">📄 Template CSV</button>{% endif %}
+      <button class="btn btn-primary perm-create-books" onclick="openNewBook()">+ Novo Livro</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Patrimônio</th><th>Título</th><th>Autor</th><th>Categoria</th><th>Localização</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody id="books-body"></tbody></table>
+      </div>
+      <div id="books-pagination" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── STUDENTS ── -->
+<div class="page {% if page=='students' %}active{% endif %}" id="p-students">
+  <div class="page-header">
+    <h2>Alunos</h2>
+    <div class="header-actions">
+       <div class="search-bar"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg><input type="text" id="students-search" placeholder="Nome, matrícula, turma..." autocomplete="off"></div>
+       <select id="students-active-filter" class="btn btn-secondary" style="cursor:pointer" onchange="loadStudents(document.getElementById('students-search').value)">
+        <option value="active">Ativos</option>
+        <option value="inactive">Inativos</option>
+        <option value="all">Todos</option>
+      </select>
+      <select id="students-sort" class="btn btn-secondary" style="cursor:pointer;width:auto" onchange="loadStudents(document.getElementById('students-search').value)">
+        <option value="name_asc">A-Z (Aluno)</option>
+        <option value="name_desc">Z-A (Aluno)</option>
+        <option value="enrollment_asc">Matrícula crescente</option>
+        <option value="enrollment_desc">Matrícula decrescente</option>
+        <option value="class_name_asc">A-Z (Turma)</option>
+        <option value="class_name_desc">Z-A (Turma)</option>
+      </select>
+      {% if user_role == 'admin' %}<label class="btn btn-secondary" style="cursor:pointer"><input type="file" accept=".csv" style="display:none" onchange="importCSV('students',this)">📥 Importar CSV</label>
+      <button class="btn btn-secondary" onclick="downloadTemplate('students')">📄 Template CSV</button>{% endif %}
+      <button class="btn btn-primary perm-create-students" onclick="openNewStudent()">+ Novo Aluno</button>
+      <button class="btn btn-danger" onclick="openDeactivateClass()" title="Desativar alunos de uma turma">🚫 Inativar Turma</button>
+      <button class="btn btn-secondary" onclick="openBatchEditClass()">📝 Editar Turma</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Nome</th><th>Matrícula</th><th>Turma</th><th>Empréstimos</th><th>Situação</th><th>Ações</th></tr></thead>
+        <tbody id="students-body"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── LOANS ── -->
+<div class="page {% if page=='loans' %}active{% endif %}" id="p-loans">
+  <div class="page-header">
+    <h2>Empréstimos</h2>
+    <div class="header-actions">
+       <div class="search-bar"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg><input type="text" id="loans-search" placeholder="Aluno, matrícula, livro, patrimônio..." autocomplete="off"></div>
+      <select id="loans-filter" class="btn btn-secondary" style="cursor:pointer" onchange="loadLoans()">
+        <option value="active">Ativos</option>
+        <option value="overdue">Atrasados</option>
+        <option value="returned">Devolvidos</option>
+        <option value="all">Todos</option>
+      </select>
+      <button class="btn btn-primary perm-create-loans" onclick="openModal('modal-loan')">+ Novo Empréstimo</button>
+      <button class="btn btn-success perm-return-books" onclick="openModal('modal-return')">↩ Registrar Devolução</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Aluno</th><th>Turma</th><th>Livro</th><th>Patrimônio</th><th>Retirada</th><th>Devolução Prevista</th><th>Status</th><th>Reserva</th><th>Ação</th></tr></thead>
+        <tbody id="loans-body"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── REPORTS ── -->
+<div class="page {% if page=='reports' %}active{% endif %}" id="p-reports">
+  <div class="page-header"><h2>Relatórios</h2></div>
+  <div class="report-cards">
+    <div class="report-card" onclick="showReportFilters('active-loans')"><div class="icon">📋</div><h4>Empréstimos Ativos</h4><p>Todos os livros emprestados no momento</p></div>
+    <div class="report-card" onclick="showReportFilters('overdue')"><div class="icon">⚠️</div><h4>Livros em Atraso</h4><p>Devoluções pendentes além do prazo</p></div>
+    <div class="report-card" onclick="showReportFilters('student-history')"><div class="icon">🎓</div><h4>Histórico por Aluno</h4><p>Todos os empréstimos de um aluno</p></div>
+    <div class="report-card" onclick="showReportFilters('movement')"><div class="icon">📊</div><h4>Movimentação por Período</h4><p>Empréstimos e devoluções em intervalo de datas</p></div>
+    <div class="report-card" onclick="showReportFilters('inventory')"><div class="icon">📖</div><h4>Acervo Completo</h4><p>Todos os livros cadastrados</p></div>
+    <div class="report-card" onclick="showReportFilters('most-borrowed')"><div class="icon">🏆</div><h4>Mais Emprestados</h4><p>Ranking dos livros com mais saídas</p></div>
+    <div class="report-card" onclick="showReportFilters('student-ranking')"><div class="icon">🥇</div><h4>Ranking de Alunos</h4><p>Alunos com mais empréstimos — programa de premiação</p></div>
+    <div class="report-card" onclick="showReportFilters('class-ranking')"><div class="icon">🏫</div><h4>Ranking de Turmas</h4><p>Turmas com maior volume de leitura</p></div>
+    <div class="report-card" onclick="showReportFilters('reservations')"><div class="icon">📌</div><h4>Reservas</h4><p>Livros reservados e fila de espera</p></div>
+  </div>
+  <div id="report-filter-panel" style="display:none">
+    <div class="report-filters">
+      <strong id="report-filter-title" style="font-size:.9rem;"></strong>
+      <div class="filter-row" id="report-filter-row"></div>
+      <div style="margin-top:14px;display:flex;gap:8px;">
+        <button class="btn btn-primary" onclick="runReport()">Gerar Relatório</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('report-filter-panel').style.display='none';document.getElementById('report-print-panel').style.display='none'">Fechar</button>
+      </div>
+    </div>
+  </div>
+  <div id="report-print-panel" style="display:none">
+    <div class="print-actions">
+      <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir</button>
+      <button class="btn btn-secondary" onclick="document.getElementById('report-print-panel').style.display='none'">Fechar</button>
+    </div>
+    <div class="print-area">
+      <div id="print-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── RESERVATIONS ── -->
+<div class="page {% if page=='reservations' %}active{% endif %}" id="p-reservations">
+  <div class="page-header">
+    <h2>Reservas Ativas</h2>
+    <div class="header-actions">
+      <select id="res-filter-status" class="btn btn-secondary" style="cursor:pointer" onchange="loadReservationsPage()">
+        <option value="active">Ativas</option>
+        <option value="fulfilled">Atendidas</option>
+        <option value="cancelled">Canceladas</option>
+        <option value="all">Todas</option>
+      </select>
+    </div>
+  </div>
+  <div class="stats-grid" style="margin-bottom:16px;">
+    <div class="stat-card"><div class="stat-icon blue">📌</div><div class="stat-val" id="res-stat-active">0</div><div class="stat-label">Reservas Ativas</div></div>
+    <div class="stat-card"><div class="stat-icon green">✅</div><div class="stat-val" id="res-stat-fulfilled">0</div><div class="stat-label">Atendidas</div></div>
+    <div class="stat-card"><div class="stat-icon red">❌</div><div class="stat-val" id="res-stat-cancelled">0</div><div class="stat-label">Canceladas</div></div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <div class="tbl-wrap">
+        <table><thead><tr><th>#</th><th>Aluno</th><th>Matrícula</th><th>Turma</th><th>Livro</th><th>Patrimônio</th><th>Reservado em</th><th>Status</th><th>Operador</th><th>Ações</th></tr></thead>
+        <tbody id="reservations-body"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CHARTS ── -->
+<div class="page {% if page=='charts' %}active{% endif %}" id="p-charts">
+  <div class="page-header"><h2>Gráficos e Estatísticas</h2></div>
+  <div class="stats-grid" style="margin-bottom:8px;grid-template-columns:repeat(4,1fr);gap:8px">
+    <div class="stat-card" style="padding:10px"><div class="stat-icon" style="width:26px;height:26px;font-size:.8rem;margin-bottom:6px">📊</div><div class="stat-val" id="chart-stat-loans" style="font-size:1.1rem">—</div><div class="stat-label" style="font-size:.65rem">Total de Empréstimos</div></div>
+    <div class="stat-card" style="padding:10px"><div class="stat-icon" style="width:26px;height:26px;font-size:.8rem;margin-bottom:6px">📈</div><div class="stat-val" id="chart-stat-avg" style="font-size:1.1rem">—</div><div class="stat-label" style="font-size:.65rem">Média/Dia (30d)</div></div>
+    <div class="stat-card" style="padding:10px"><div class="stat-icon" style="width:26px;height:26px;font-size:.8rem;margin-bottom:6px">🏆</div><div class="stat-val" id="chart-stat-top" style="font-size:1.1rem">—</div><div class="stat-label" style="font-size:.65rem">Livro + Emprestado</div></div>
+    <div class="stat-card" style="padding:10px"><div class="stat-icon" style="width:26px;height:26px;font-size:.8rem;margin-bottom:6px">📚</div><div class="stat-val" id="chart-stat-cat" style="font-size:1.1rem">—</div><div class="stat-label" style="font-size:.65rem">Categoria Principal</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+    <div class="card"><div class="card-header" style="padding:10px 14px"><h3 style="font-size:.88rem">Empréstimos (30 dias)</h3></div><div class="card-body" style="padding:12px"><canvas id="chart-loans-per-day" height="220"></canvas></div></div>
+    <div class="card"><div class="card-header" style="padding:10px 14px"><h3 style="font-size:.88rem">Livros por Categoria</h3></div><div class="card-body" style="padding:12px"><canvas id="chart-books-by-cat" height="220"></canvas></div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div class="card"><div class="card-header" style="padding:10px 14px"><h3 style="font-size:.88rem">Mais Emprestados</h3></div><div class="card-body" style="padding:12px"><canvas id="chart-top-books" height="220"></canvas></div></div>
+    <div class="card"><div class="card-header" style="padding:10px 14px"><h3 style="font-size:.88rem">Empréstimos por Turma</h3></div><div class="card-body" style="padding:12px"><canvas id="chart-loans-by-class" height="220"></canvas></div></div>
+  </div>
+</div>
+
+<!-- ── BARCODES ── -->
+<div class="page {% if page=='barcodes' %}active{% endif %}" id="p-barcodes">
+  <div class="page-header"><h2>Impressão de Etiquetas</h2></div>
+  <div class="card">
+    <div class="card-body">
+      <div style="display:flex;gap:12px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
+        <div class="search-bar" style="flex:1;min-width:200px"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg><input type="text" id="barcode-search" placeholder="Título, autor, patrimônio..." autocomplete="off"></div>
+        <select id="barcode-sort" class="btn btn-secondary" style="cursor:pointer;width:auto">
+          <option value="patrimony_asc">Patrimônio (A-Z)</option>
+          <option value="patrimony_desc">Patrimônio (Z-A)</option>
+          <option value="title_asc">Título (A-Z)</option>
+          <option value="title_desc">Título (Z-A)</option>
+          <option value="author_asc">Autor (A-Z)</option>
+          <option value="author_desc">Autor (Z-A)</option>
+        </select>
+      </div>
+      <div class="tbl-wrap" style="margin-bottom:18px">
+        <table>
+          <thead><tr><th style="width:40px"><input type="checkbox" id="bc-select-all" onclick="toggleAllBarcodes(this.checked)"></th><th>Patrimônio</th><th>Título</th><th>Autor</th><th>Status</th></tr></thead>
+          <tbody id="barcode-books-body"></tbody>
+        </table>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+        <div class="form-group" style="margin:0"><label>Selecionados</label><strong id="bc-selected-count">0</strong></div>
+        <div class="form-group" style="margin:0"><label>Papel Predefinido</label>
+          <select id="bc-preset">
+            <option value="a4-3col" selected>A4 - 3 colunas (63.5x38.1mm) - Padrão</option>
+            <option value="a4-2col">A4 - 2 colunas (105x74mm) - Grande</option>
+            <option value="a4-4col">A4 - 4 colunas (48x25mm) - Pequeno</option>
+            <option value="termal-1col">Termal - 1 coluna (80mm x 40mm) - Grande</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="printSelectedBarcodes()">🖨️ Imprimir Selecionados</button>
+        <button class="btn btn-secondary" onclick="loadBarcodeBooks()">🔄 Atualizar Lista</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ACTIVITY ── -->
+<div class="page {% if page=='activity' %}active{% endif %}" id="p-activity">
+  <div class="page-header"><h2>Atividade Recente</h2></div>
+  <div class="card"><div class="card-body"><div class="activity-list" id="activity-list"></div></div></div>
+</div>
+
+<!-- ── INSTITUTION ── -->
+<div class="page {% if page=='institution' %}active{% endif %}" id="p-institution">
+  <div class="page-header"><h2>Instituição</h2></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px">
+    <div class="card" style="max-width:580px">
+      <div class="card-body">
+        <div style="text-align:center;margin-bottom:16px">
+          <div id="inst-logo-preview" style="width:80px;height:80px;border-radius:12px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 8px;overflow:hidden;background:var(--bg)"></div>
+          <label class="btn btn-secondary btn-sm" style="cursor:pointer">Alterar Logo<input type="file" accept="image/*" style="display:none" onchange="uploadLogo(this)"></label>
+        </div>
+        <div class="form-row"><div class="form-group"><label>Nome da Instituição</label><input id="inst-name" type="text"></div><div class="form-group"><label>CNPJ</label><input id="inst-cnpj" type="text"></div></div>
+        <div class="form-group"><label>Endereço</label><input id="inst-address" type="text"></div>
+        <div class="form-row"><div class="form-group"><label>Telefone</label><input id="inst-phone" type="text"></div><div class="form-group"><label>E-mail</label><input id="inst-email" type="email"></div></div>
+        <button class="btn btn-primary perm-save-inst" style="margin-top:8px" onclick="saveInstitution()">Salvar Alteracoes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Categorias Page -->
+<div class="page {% if page=='categories' %}active{% endif %}" id="p-categories">
+  <div class="page-header"><h2>Categorias</h2></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px">
+    <div class="card" style="max-width:500px">
+      <div class="card-header"><h3>Categorias</h3><button class="btn btn-sm btn-primary perm-manage-cats" onclick="openModal('modal-category')">+ Nova</button></div>
+      <div class="card-body"><div id="categories-list" style="max-height:360px;overflow-y:auto"></div></div>
+    </div>
+    <div class="card" style="max-width:400px">
+      <div class="card-header"><h3>Configurações</h3></div>
+      <div class="card-body">
+        <div class="form-group"><label>Prazo padrão de empréstimo (dias)</label>
+          <div class="days-toggle">
+            <button class="day-btn" onclick="setDefaultDays(7,this)">7 dias</button>
+            <button class="day-btn" onclick="setDefaultDays(14,this)">14 dias</button>
+            <button class="day-btn" onclick="setDefaultDays(21,this)">21 dias</button>
+            <button class="day-btn" onclick="setDefaultDays(30,this)">30 dias</button>
+          </div>
+          <input id="cat-inst-days" type="number" min="1" max="365" style="margin-top:8px;width:120px" placeholder="Ou digite...">
+        </div>
+        <button class="btn btn-primary" style="margin-top:8px" onclick="saveCategoryLoanDays()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Category Modal -->
+<div class="overlay" id="modal-category">
+  <div class="modal" style="width:400px">
+    <h3>Nova Categoria</h3>
+    <div class="form-group"><label>Nome</label><input id="cat-name" type="text" placeholder="Nome da categoria"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-category')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveCategory()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PERMISSIONS ── -->
+<div class="page {% if page=='permissions' %}active{% endif %}" id="p-permissions">
+  <div class="page-header"><h2>Permissões do Operador</h2></div>
+  <div class="card" style="max-width:700px">
+    <div class="card-body">
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:18px">Configure o que usuarios com perfil de <strong>Operador</strong> podem fazer no sistema. Administradores sempre tem acesso total.</p>
+      <div id="perms-list"></div>
+      <button class="btn btn-primary" style="margin-top:20px" onclick="savePermissions()">Salvar Permissões</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── USERS ── -->
+<div class="page {% if page=='users' %}active{% endif %}" id="p-users">
+  <div class="page-header">
+    <h2>Usuários do Sistema</h2>
+    <div class="header-actions">
+      {% if user_role == 'admin' %}<button class="btn btn-primary" onclick="openModal('modal-user')">+ Novo Usuário</button>{% endif %}
+      <button class="btn btn-secondary" onclick="openModal('modal-change-pw')">🔒 Alterar minha senha</button>
+    </div>
+  </div>
+  <div class="card" style="max-width:720px">
+    <div class="card-body"><div class="tbl-wrap"><table><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Último acesso</th><th>Status</th>{% if user_role == 'admin' %}<th>Ações</th>{% endif %}</tr></thead><tbody id="users-body"></tbody></table></div></div>
+  </div>
+</div>
+
+<!-- ── BACKUP ── -->
+<div class="page {% if page=='backup' %}active{% endif %}" id="p-backup">
+  <div class="page-header"><h2>Backup & Restauração</h2></div>
+  <div style="display:grid;grid-template-columns:{% if user_role == 'admin' %}1fr 1fr{% else %}1fr{% endif %};gap:20px;max-width:{% if user_role == 'admin' %}680px{% else %}340px{% endif %};margin-bottom:24px">
+    <div class="card"><div class="card-body" style="text-align:center;padding:36px 20px">
+      <div style="font-size:2.2rem;margin-bottom:12px">💾</div>
+      <h3 style="margin-bottom:6px;font-size:1rem">Fazer Backup</h3>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:18px">Download completo do banco de dados</p>
+      <a href="/api/backup/download" class="btn btn-primary" style="display:inline-flex" download>📥 Baixar Backup</a>
+    </div></div>
+    {% if user_role == 'admin' %}<div class="card"><div class="card-body" style="text-align:center;padding:36px 20px">
+      <div style="font-size:2.2rem;margin-bottom:12px">📂</div>
+      <h3 style="margin-bottom:6px;font-size:1rem">Restaurar</h3>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:6px">Clique em "Restaurar" na tabela acima ou selecione um arquivo .db manualmente.</p>
+      <p style="font-size:.78rem;color:var(--muted);margin-bottom:14px">Pasta de backups: <code style="background:var(--bg);padding:2px 6px;border-radius:4px;font-size:.75rem" id="backup-dir-path">—</code></p>
+      <label class="btn btn-secondary" style="cursor:pointer;display:inline-flex">📤 Selecionar Arquivo<input type="file" accept=".db" style="display:none" onchange="restoreBackup(this)"></label>
+    </div></div>{% endif %}
+  </div>
+  <div class="card" style="max-width:680px">
+    <div class="card-header"><h3>Backups Locais (últimos 3)</h3><button class="btn btn-sm btn-secondary" onclick="loadBackups()">↻ Atualizar</button></div>
+    <div class="card-body"><div class="tbl-wrap"><table><thead><tr><th>Arquivo</th><th>Tamanho</th><th>Data</th><th>Ações</th></tr></thead><tbody id="backups-body"></tbody></table></div></div>
+   </div>
+   <div class="card" style="max-width:680px;margin-top:20px">
+    <div class="card-header"><h3>☁️ Backup na Nuvem</h3></div>
+    <div class="card-body" id="cloud-backup-status">
+      <p style="color:var(--muted)">Verificando disponibilidade...</p>
+    </div>
+   </div>
+ </div>
+
+<!-- ── CLEANUP ── -->
+<div class="page {% if page=='cleanup' %}active{% endif %}" id="p-cleanup">
+  <div class="page-header"><h2>Limpeza de Dados</h2></div>
+  <div class="card" style="max-width:640px;margin-bottom:24px">
+    <div class="card-body" style="padding:28px 24px">
+      <p style="font-size:.88rem;color:var(--muted);margin-bottom:20px">Atenção: a limpeza apaga dados PERMANENTEMENTE, incluindo históricos. Um backup automático será criado antes da limpeza.</p>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:24px">
+        <label style="display:flex;align-items:center;gap:10px;font-size:.9rem;cursor:pointer;padding:10px 14px;border-radius:8px;background:var(--bg)">
+          <input type="checkbox" id="clean-books" checked style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer">
+          <span><strong>Livros</strong> — apaga todo o acervo cadastrado</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:.9rem;cursor:pointer;padding:10px 14px;border-radius:8px;background:var(--bg)">
+          <input type="checkbox" id="clean-students" checked style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer">
+          <span><strong>Alunos</strong> — apaga todos os alunos cadastrados</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:.9rem;cursor:pointer;padding:10px 14px;border-radius:8px;background:var(--bg)">
+          <input type="checkbox" id="clean-loans" checked style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer">
+          <span><strong>Empréstimos</strong> — apaga todo o histórico de empréstimos</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:.9rem;cursor:pointer;padding:10px 14px;border-radius:8px;background:var(--bg)">
+          <input type="checkbox" id="clean-logs" checked style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer">
+          <span><strong>Log de Atividades</strong> — apaga o histórico de ações no sistema</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:.9rem;cursor:pointer;padding:10px 14px;border-radius:8px;background:var(--bg)">
+          <input type="checkbox" id="clean-categories" style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer">
+          <span><strong>Categorias</strong> — apaga todas as categorias (exceto as padrão)</span>
+        </label>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <button class="btn btn-danger" onclick="runCleanup()" id="btn-cleanup">🗑️ Limpar Dados Selecionados</button>
+        <span id="cleanup-status" style="font-size:.82rem;color:var(--muted)"></span>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="max-width:640px">
+    <div class="card-header"><h3>O que NÃO será apagado</h3></div>
+    <div class="card-body" style="padding:18px 24px;font-size:.86rem;color:var(--muted)">
+      <ul style="padding-left:18px;line-height:1.8">
+        <li>Usuários (admin e operadores)</li>
+        <li>Dados da instituição (nome, CNPJ, logo)</li>
+        <li>Licença ativada</li>
+        <li>Permissões de operadores</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ── LICENSE CHECK ── -->
+<div class="page {% if page=='license_check' %}active{% endif %}" id="p-license_check">
+  <div class="page-header"><h2>Licença do Sistema</h2></div>
+  <div class="card" style="max-width:520px">
+    <div class="card-body" style="text-align:center;padding:40px 24px">
+      <div style="font-size:3rem;margin-bottom:16px">🔐</div>
+      <h3 style="margin-bottom:8px;font-size:1.1rem">Licença Inativa</h3>
+      <p style="font-size:.88rem;color:var(--muted);margin-bottom:24px">O sistema precisa de uma licença ativa para funcionar. Informe a chave de ativação abaixo.</p>
+      <div style="background:var(--bg);padding:12px 16px;border-radius:8px;margin-bottom:20px;font-family:monospace;font-size:.82rem">
+        ID da Máquina: <strong id="lic-machine-id">{{ machine_id if machine_id else 'carregando...' }}</strong>
+      </div>
+      <div style="display:flex;gap:8px;max-width:380px;margin:0 auto 12px">
+        <input type="text" id="lic-key" class="lic-input" style="flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:monospace;font-size:.85rem;text-align:center;letter-spacing:1px;font-weight:600;outline:none;" placeholder="Cole a chave de licença aqui" maxlength="200">
+        <button class="btn btn-primary" onclick="activateLicenseFromPage()" style="white-space:nowrap">Ativar</button>
+      </div>
+      <div class="lic-msg" id="lic-msg-page" style="font-size:.8rem;margin-top:8px;font-weight:500;"></div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ── MODALS ── -->
+
+<!-- Book Modal -->
+<div class="overlay" id="modal-book">
+  <div class="modal">
+    <h3 id="book-modal-title">Cadastrar Novo Livro</h3>
+    <input type="hidden" id="book-edit-id">
+    <div class="form-row">
+      <div class="form-group"><label>Nº Patrimônio *</label><input id="book-patrimony" type="text" placeholder="PAT-00001"></div>
+      <div class="form-group"><label>ISBN</label><input id="book-isbn" type="text" placeholder="978-..."></div>
+    </div>
+    <div class="form-group"><label>Título *</label><input id="book-title" type="text" placeholder="Título do livro"></div>
+    <div class="form-group"><label>Autor</label><input id="book-author" type="text" placeholder="Nome do autor"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Categoria</label><select id="book-category"><option value="">Selecione...</option></select></div>
+      <div class="form-group"><label>Editora</label><input id="book-publisher" type="text" placeholder="Editora"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Ano</label><input id="book-year" type="number" placeholder="2024" min="1800" max="2099"></div>
+      <div class="form-group"><label>Localização</label><input id="book-location" type="text" placeholder="Ex: Estante A, Prateleira 2"></div>
+    </div>
+    <div class="form-group"><label>Observacoes</label><input id="book-notes" type="text" placeholder="..."></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-book')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveBook()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Student Modal -->
+<div class="overlay" id="modal-student">
+  <div class="modal">
+    <h3 id="student-modal-title">Cadastrar Novo Aluno</h3>
+    <input type="hidden" id="student-edit-id">
+    <div class="form-group"><label>Nome Completo *</label><input id="student-name" type="text" placeholder="Nome do aluno"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Matrícula *</label><input id="student-enrollment" type="text" placeholder="2026001"></div>
+      <div class="form-group"><label>Turma</label><input id="student-class" type="text" placeholder="9º A"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Telefone</label><input id="student-phone" type="text" placeholder="(00) 00000-0000"></div>
+      <div class="form-group"><label>E-mail</label><input id="student-email" type="email" placeholder="aluno@email.com"></div>
+    </div>
+    <div class="form-group"><label>Observações</label><textarea id="student-notes" placeholder="..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-student')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveStudent()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Loan Modal -->
+<div class="overlay" id="modal-loan">
+  <div class="modal" style="max-width:700px">
+    <h3>Novo Empréstimo</h3>
+    <div class="auto-dt"><span style="font-size:1.1rem">🕐</span><div><div><input type="datetime-local" id="loan-datetime" style="font-size:.9rem;border:1px solid var(--border);border-radius:6px;padding:4px 8px"></div><div class="auto-dt-label" style="font-size:.75rem">Data e hora do empréstimo (edite se necessário)</div></div></div>
+    
+    <!-- Passo 1: Aluno -->
+    <div style="margin-bottom:12px">
+      <strong style="font-size:.85rem;color:var(--muted)">PASSO 1: Selecione o Aluno</strong>
+      <div class="form-group" style="margin-top:6px">
+        <input type="text" id="loan-student-search" placeholder="Digite nome ou matrícula..." autocomplete="off">
+        <div id="loan-student-results" style="border:1px solid var(--border);border-radius:8px;margin-top:4px;display:none;max-height:140px;overflow-y:auto;background:#fff;"></div>
+        <input type="hidden" id="loan-student-id">
+      </div>
+      <div id="loan-student-selected" style="display:none;margin-top:6px;padding:8px;background:#f0f7f4;border-radius:6px;font-size:.9rem">
+        <strong>✓</strong> <span id="loan-student-selected-name"></span>
+        <button class="btn btn-secondary btn-sm" style="margin-left:8px;padding:2px 8px;font-size:.7rem" onclick="clearLoanStudent()">Trocar</button>
+      </div>
+    </div>
+
+    <!-- Passo 2: Adicionar Livros (Carrinho) -->
+    <div id="loan-books-section" style="display:none">
+      <strong style="font-size:.85rem;color:var(--muted)">PASSO 2: Adicione os Livros</strong>
+      <div class="mode-toggle" style="margin:8px 0">
+        <button class="mode-btn active" onclick="setLoanMode('scanner',this)">📷 Scanner</button>
+        <button class="mode-btn" onclick="setLoanMode('manual',this)">✏️ Manual</button>
+      </div>
+      <div id="loan-scanner-div">
+        <div class="scanner-field">
+          <span style="font-size:1.3rem">📷</span>
+          <input type="text" id="loan-scan-input" placeholder="Leia o código de barras..." autocomplete="off">
+          <span class="scanner-hint">Aguardando...</span>
+        </div>
+      </div>
+      <div id="loan-manual-div" style="display:none">
+        <div class="form-group"><label>Buscar Livro</label>
+          <input type="text" id="loan-book-search" placeholder="Digite para buscar..." autocomplete="off">
+          <div id="loan-book-results" style="border:1px solid var(--border);border-radius:8px;margin-top:4px;display:none;max-height:140px;overflow-y:auto;background:#fff;"></div>
+        </div>
+      </div>
+
+      <!-- Carrinho de livros -->
+      <div style="margin-top:12px">
+        <strong style="font-size:.85rem;color:var(--muted)">🛒 Livros para Emprestar (<span id="loan-cart-count">0</span>)</strong>
+        <div id="loan-cart-list" style="margin-top:6px;max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:8px;background:#fafafa">
+          <div id="loan-cart-empty" style="text-align:center;padding:20px;color:var(--muted);font-size:.85rem">Nenhum livro adicionado</div>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:10px">
+        <label>Prazo de Devolução</label>
+        <div class="days-toggle" id="loan-days-toggle">
+          <button class="day-btn" onclick="setLoanDays(7,this)">7 dias</button>
+          <button class="day-btn active" onclick="setLoanDays(14,this)">14 dias</button>
+          <button class="day-btn" onclick="setLoanDays(21,this)">21 dias</button>
+          <button class="day-btn" onclick="setLoanDays(30,this)">30 dias</button>
+        </div>
+        <input type="date" id="loan-due-date" style="margin-top:8px;width:180px">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-loan')">Cancelar</button>
+      <button class="btn btn-primary" id="btn-finalize-loans" onclick="saveBatchLoans()" disabled>✅ Finalizar Empréstimos</button>
+    </div>
+
+    <!-- Seção: Gerenciar Empréstimos do Aluno (Devolver/Renovar) -->
+    <div id="loan-student-loans-section" style="display:none;margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
+      <strong style="font-size:.85rem;color:var(--muted)">📋 Empréstimos Ativos do Aluno</strong>
+      <div id="loan-student-active-loans" style="margin-top:8px;max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:8px;background:#fff">
+        <div style="text-align:center;padding:16px;color:var(--muted);font-size:.85rem">Nenhum empréstimo ativo</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end">
+        <button class="btn btn-sm" style="background:var(--success);color:#fff" onclick="batchReturnSelected()">Devolver Selecionados</button>
+        <button class="btn btn-sm" style="background:var(--warning);color:#000" onclick="batchRenewSelected()">Renovar Selecionados</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Return Modal -->
+<div class="overlay" id="modal-return">
+  <div class="modal">
+    <h3>Registrar Devolução</h3>
+    <div class="auto-dt"><span style="font-size:1.1rem">🕐</span><div><div class="auto-dt-val" id="return-dt"></div><div class="auto-dt-label">Data e hora da devolução</div></div></div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" onclick="setReturnMode('scanner',this)">📷 Scanner</button>
+      <button class="mode-btn" onclick="setReturnMode('manual',this)">✏️ Manual</button>
+    </div>
+    <div id="return-scanner-div">
+      <div class="scanner-field">
+        <span style="font-size:1.3rem">📷</span>
+        <input type="text" id="return-scan-input" placeholder="Leia o código do livro a devolver..." autocomplete="off">
+        <span class="scanner-hint">Aguardando...</span>
+      </div>
+    </div>
+    <div id="return-manual-div" style="display:none">
+      <div class="form-group"><label>Patrimônio do Livro</label><input type="text" id="return-patrimony" placeholder="PAT-00001"></div>
+      <button class="btn btn-secondary btn-sm" onclick="lookupReturn()">Buscar</button>
+    </div>
+    <div id="return-preview" style="display:none" class="loan-preview"></div>
+    <div id="return-reservation-alert" style="display:none;margin-top:12px;padding:10px;background:#fef3c7;border-radius:8px;border-left:4px solid var(--warning);font-size:.85rem"></div>
+    <input type="hidden" id="return-loan-id">
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-return')">Cancelar</button>
+      <button class="btn btn-success" id="btn-confirm-return" onclick="confirmReturn()" disabled>Confirmar Devolução</button>
+    </div>
+  </div>
+</div>
+
+<!-- User Modal -->
+<div class="overlay" id="modal-user">
+  <div class="modal">
+    <h3 id="user-modal-title">Novo Usuário</h3>
+    <input type="hidden" id="user-edit-id">
+    <div class="form-group"><label>Nome Completo *</label><input id="user-name" type="text" placeholder="Nome do usuário"></div>
+    <div class="form-group"><label>E-mail *</label><input id="user-email" type="email" placeholder="usuario@email.com"></div>
+    <div class="form-group"><label>Senha *</label><input id="user-password" type="password" placeholder="Mínimo 6 caracteres"></div>
+    <div class="form-group"><label>Perfil</label><select id="user-role"><option value="operator">Operador</option><option value="admin">Administrador</option></select></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-user')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveUser()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="overlay" id="modal-change-pw">
+  <div class="modal">
+    <h3>Alterar Minha Senha</h3>
+    <div class="form-group"><label>Senha Atual *</label><input id="pw-current" type="password" placeholder="Senha atual"></div>
+    <div class="form-group"><label>Nova Senha *</label><input id="pw-new" type="password" placeholder="Nova senha (mín. 6 caracteres)"></div>
+    <div class="form-group"><label>Confirmar Nova Senha *</label><input id="pw-confirm" type="password" placeholder="Repita a nova senha"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-change-pw')">Cancelar</button>
+      <button class="btn btn-primary" onclick="changePassword()">Alterar Senha</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-deactivate-class">
+  <div class="modal" style="width:400px">
+    <h3>Inativar Turma</h3>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:12px">Selecione a turma para desativar todos os alunos:</p>
+    <div class="form-group"><label>Turma</label><select id="deactivate-class-select" style="width:100%;padding:8px;font-size:.9rem;border-radius:6px;border:1px solid var(--border)"></select></div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:8px">Os alunos serão marcados como inativos, mas continuarão no histórico de empréstimos.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-deactivate-class')">Cancelar</button>
+      <button class="btn btn-danger" onclick="confirmDeactivateClass()">Inativar Turma</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-batch-edit-class">
+  <div class="modal" style="width:650px">
+    <h3>Editar Turma — Migração de Alunos</h3>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:12px">Selecione a turma de origem e defina para qual turma cada aluno vai.</p>
+    <div class="form-group"><label>Turma de Origem</label>
+      <select id="batch-edit-class-select" style="width:100%;padding:8px;font-size:.9rem;border-radius:6px;border:1px solid var(--border)" onchange="loadBatchEditStudents()">
+        <option value="">— Selecione —</option>
+      </select></div>
+    <div id="batch-edit-students-wrap" style="margin-top:12px;max-height:350px;overflow-y:auto;display:none">
+      <table style="width:100%;border-collapse:collapse;font-size:.85rem">
+        <thead><tr style="background:var(--bg)"><th style="padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)">Aluno</th><th style="padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)">Matrícula</th><th style="padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)">Turma Atual</th><th style="padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)">Vai para</th><th style="padding:6px 8px;text-align:center;border-bottom:1px solid var(--border);width:60px">Inativar</th></tr></thead>
+        <tbody id="batch-edit-students-body"></tbody>
+      </table>
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:8px">Preencha "Vai para" para mudar de turma. Marque "Inativar" para desativar o aluno.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-batch-edit-class')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveBatchEditClass()">Salvar Alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SOBRE ── -->
+<div class="overlay" id="modal-sobre">
+  <div class="modal" style="width:420px">
+    <h3>Sobre</h3>
+    <div style="font-size:.9rem;color:var(--text);line-height:1.8">
+      <p><strong>Biblioteca</strong> — Sistema de Gerenciamento</p>
+      <p>Versão: <span id="sobre-versao">—</span></p>
+      <p>Instituição: <span id="sobre-instituicao">—</span></p>
+      <p>Desenvolvido por: <span id="sobre-desenvolvido">—</span></p>
+      <p>Licença: <span id="sobre-licenca">—</span></p>
+      <p style="font-size:.8rem;color:var(--muted);margin-top:12px" id="sobre-copyright"></p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="closeModal('modal-sobre')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+window.CURRENT_PAGE = '{{ page }}';
+window.USER_ROLE = '{{ user_role }}';
+</script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

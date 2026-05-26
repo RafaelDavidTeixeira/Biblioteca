@@ -1,0 +1,41 @@
+Aqui está o passo a passo para gerar o executável Linux em uma VM Ubuntu:
+
+1. Preparar a VM
+Abra o terminal do Ubuntu.
+Instale o Python e o Git (se não tiver):
+sudo apt update
+sudo apt install -y python3 python3-pip python3-venv git
+2. Baixar o Projeto
+A maneira mais fácil é clonar seu repositório do GitHub:
+
+git clone https://github.com/RafaelDavidTeixeira/Biblioteca.git
+cd Biblioteca
+3. Rodar o Build
+O script build_linux.sh já faz tudo (instala dependências e gera o binário), mas é melhor usar um ambiente virtual para não bagunçar o sistema:
+
+# Criar ambiente virtual
+python3 -m venv venv
+source venv/bin/activate
+
+# Instalar dependências
+pip install flask werkzeug pyinstaller
+
+# Rodar o script de build
+chmod +x build_linux.sh
+./build_linux.sh
+4. Pegar o Executável
+Se tudo der certo, aparecerá "SUCESSO: release/biblioteca". O arquivo estará em: ~/Biblioteca/release/biblioteca
+
+Para copiar para a pasta Área de Trabalho (e facilitar o acesso):
+
+cp release/biblioteca ~/Área\ de\ Trabalho/
+chmod +x ~/Área\ de\ Trabalho/biblioteca
+5. Testar
+Para testar, basta rodar no terminal:
+
+./release/biblioteca
+O sistema abrirá no navegador em http://127.0.0.1:5477.
+
+Notas importantes:
+Erro de permissão: Se der erro de acesso ao banco de dados ou pastas, tente rodar de dentro de uma pasta onde você tem permissão de escrita (como a Desktop).
+Tamanho: O binário gerado terá cerca de 15MB a 30MB (dependendo das bibliotecas incluídas).

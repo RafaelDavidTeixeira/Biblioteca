@@ -1,0 +1,131 @@
+{
+  "current_version": "v20260504_082620",
+  "versions": [
+    {
+      "id": "v20260504_082054",
+      "timestamp": "2026-05-04T08:20:54.908364",
+      "description": "Before fix - initial state",
+      "files": [
+        {
+          "original_path": "app/templates/app.html",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082054\\app_templates_app.html",
+          "hash": "ca85c627100dfceb057c666e9ef3188f"
+        },
+        {
+          "original_path": "app/__init__.py",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082054\\app___init__.py",
+          "hash": "2cb3920fdfdd41290c81149f194e3b5d"
+        },
+        {
+          "original_path": "app/routes/auth.py",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082054\\app_routes_auth.py",
+          "hash": "92e91cca1077e5f2f29740a13b98c8d7"
+        },
+        {
+          "original_path": "app/routes/api.py",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082054\\app_routes_api.py",
+          "hash": "e1d7b149bf683041db63dd0c30c24d4c"
+        },
+        {
+          "original_path": "app/routes/books.py",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082054\\app_routes_books.py",
+          "hash": "bbe32dcbcc5e6ee43aa31a373a2a829d"
+        },
+        {
+          "original_path": "app/routes/students.py",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082054\\app_routes_students.py",
+          "hash": "0b0e266d38364331c2234985ab34d482"
+        },
+        {
+          "original_path": "app/routes/loans.py",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082054\\app_routes_loans.py",
+          "hash": "64cb3715fd4b62087c4b1088e692da50"
+        }
+      ]
+    },
+    {
+      "id": "v20260504_082237",
+      "timestamp": "2026-05-04T08:22:37.665344",
+      "description": "After fixing JavaScript syntax",
+      "files": [
+        {
+          "original_path": "app/templates/app.html",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082237\\app_templates_app.html",
+          "hash": "006b6a73843e886a73a46bc6af93909f"
+        },
+        {
+          "original_path": "app/__init__.py",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082237\\app___init__.py",
+          "hash": "2cb3920fdfdd41290c81149f194e3b5d"
+        },
+        {
+          "original_path": "app/routes/auth.py",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082237\\app_routes_auth.py",
+          "hash": "92e91cca1077e5f2f29740a13b98c8d7"
+        },
+        {
+          "original_path": "app/routes/api.py",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082237\\app_routes_api.py",
+          "hash": "5d61244de1bf121b8048117263d8fef2"
+        },
+        {
+          "original_path": "app/routes/books.py",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082237\\app_routes_books.py",
+          "hash": "bbe32dcbcc5e6ee43aa31a373a2a829d"
+        },
+        {
+          "original_path": "app/routes/students.py",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082237\\app_routes_students.py",
+          "hash": "0b0e266d38364331c2234985ab34d482"
+        },
+        {
+          "original_path": "app/routes/loans.py",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082237\\app_routes_loans.py",
+          "hash": "64cb3715fd4b62087c4b1088e692da50"
+        }
+      ]
+    },
+    {
+      "id": "v20260504_082620",
+      "timestamp": "2026-05-04T08:26:20.854956",
+      "description": "After all syntax fixes",
+      "files": [
+        {
+          "original_path": "app/templates/app.html",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082620\\app_templates_app.html",
+          "hash": "557b9bdf5244d00366c452e2207e31d6"
+        },
+        {
+          "original_path": "app/__init__.py",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082620\\app___init__.py",
+          "hash": "b398e91553b132446f307ca8e9d4e699"
+        },
+        {
+          "original_path": "app/routes/auth.py",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082620\\app_routes_auth.py",
+          "hash": "92e91cca1077e5f2f29740a13b98c8d7"
+        },
+        {
+          "original_path": "app/routes/api.py",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082620\\app_routes_api.py",
+          "hash": "5d61244de1bf121b8048117263d8fef2"
+        },
+        {
+          "original_path": "app/routes/books.py",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082620\\app_routes_books.py",
+          "hash": "bbe32dcbcc5e6ee43aa31a373a2a829d"
+        },
+        {
+          "original_path": "app/routes/students.py",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082620\\app_routes_students.py",
+          "hash": "0b0e266d38364331c2234985ab34d482"
+        },
+        {
+          "original_path": "app/routes/loans.py",
+          "backup_path": "D:\\Projetos DEV\\biblioteca\\app\\..\\backups\\v20260504_082620\\app_routes_loans.py",
+          "hash": "64cb3715fd4b62087c4b1088e692da50"
+        }
+      ]
+    }
+  ]
+}
